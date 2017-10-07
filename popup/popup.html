@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Replace bookmark</title>
+    <!--<link rel="stylesheet" href="window.css"/>-->
+</head>
+
+<body>
+
+<style>
+
+    body {
+        border: 8px solid #f3f3f3; /* Light grey */
+        width: 500px;
+        height: 200px;
+    }
+
+    button {
+        width: 50px;
+    }
+
+    .loader {
+        border: 8px solid #f3f3f3; /* Light grey */
+        border-top: 8px solid #3498db; /* Blue */
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 2s linear infinite;
+        display: inline-block;
+        text-align: center;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .panel {
+        text-align: center;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .content {
+        text-align: center;
+        display: inline-block;
+        width: 100%;
+    }
+
+</style>
+
+
+<div class="panel">
+    <div class="loader"></div>
+    <div class="content">
+
+        <!--<div style="text-align: center">-->
+            <!--<button id="buttonOk">Ok</button>-->
+            <!--<button id="buttonCancel">Cancel</button>-->
+        <!--</div>-->
+    </div>
+
+
+
+</div>
+
+<script src="popup.js"></script>
+</body>
+
+</html>
