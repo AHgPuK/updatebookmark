@@ -75,11 +75,29 @@ function getBookmarksForURI(uri) {
 
 	var origin = Lib.getUrlObject(uri);
 
+	var protocols = ['http:', 'https:'];
+
 	return Promise.resolve()
 	.then(function () {
 
-		return browser.bookmarks.search({});
+		if (protocols.indexOf(origin.protocol) == -1) {
+			return Promise.reject();
+		}
+	})
+	.then(function () {
 
+		return browser.bookmarks.search({
+			url: uri
+		});
+
+	})
+	.then(function (result) {
+
+		if (result.length == 1) {
+			return result;
+		}
+
+		return browser.bookmarks.search({});
 	})
 	.then(function (result) {
 
@@ -102,6 +120,14 @@ function getBookmarksForURI(uri) {
 		return urls.sort(function (a, b) {
 			return b.weight - a.weight;
 		});
+	})
+	.catch(function (err) {
+
+		if (err) {
+			return Promise.reject(err);
+		}
+
+		return Promise.resolve();
 	});
 }
 
@@ -128,24 +154,27 @@ function browserAction() {
 
 		console.log(result);
 
-		if (!result)
-		{
+		if (!result) {
 			// No bookmark match
 			noBookmarks();
 			return;
 		}
 
-		if (result.length == 0)
-		{
+		if (result.length == 0) {
 			// No bookmark match
 			noBookmarks();
 			return;
 		}
 
-		if (result.length == 1)
-		{
-			// Update a bookmark
-			return;
+		if (result.length == 1) {
+
+			var item = result[0];
+
+			if (currentUrl == item.url && currentTitle == item.title)
+			{
+				bookmarkIsUpToDate();
+				return;
+			}
 		}
 
 		BookmarkList = result;
@@ -153,10 +182,13 @@ function browserAction() {
 		showBookmarks(result);
 	})
 	.then(function () {
-		console.log('Finished');
+		console.debug('Finished');
 	})
 	.catch(function (err) {
-		console.error(err);
+
+		if (err) {
+			console.error(err);
+		}
 
 		return Promise.resolve();
 	})
@@ -167,12 +199,10 @@ function browserAction() {
 
 function showElem(elem, isVisible) {
 
-	if (isVisible)
-	{
+	if (isVisible) {
 		elem.classList.remove('hidden');
 	}
-	else
-	{
+	else {
 		elem.classList.add('hidden');
 	}
 
@@ -188,8 +218,17 @@ function noBookmarks() {
 
 }
 
-function showBookmarks(list) {
+function bookmarkIsUpToDate() {
 
+	showElem(document.querySelector('.loader'), false);
+
+	var content = document.querySelector('.content');
+	content.innerHTML = 'Bookmark is up to date';
+	showElem(content, true);
+
+}
+
+function showBookmarks(list) {
 
 	var content = document.querySelector('.content');
 	content.innerHTML = '';
@@ -197,16 +236,21 @@ function showBookmarks(list) {
 	var title = document.createTextNode('Bookmarks');
 	content.appendChild(title);
 
-	for (var i = 0; i < list.length; i++)
-	{
+	var select = document.createElement('select');
+	select.classList.add('select');
+	select.size = 8;
+	content.appendChild(select);
+
+	for (var i = 0; i < list.length; i++) {
 		var item = list[i];
 
-		var div = document.createElement('div');
-		div.innerHTML = item.title;
-		div.setAttribute('data', i);
-		div.addEventListener('dblclick', bookmarkSelected, false);
+		var option = document.createElement('option');
+		option.innerHTML = item.title;
+		option.value = i;
+		option.setAttribute('data', i);
+		option.addEventListener('dblclick', bookmarkSelected, false);
 
-		content.appendChild(div);
+		select.appendChild(option);
 	}
 
 	showElem(document.querySelector('.loader'), false);
@@ -217,7 +261,7 @@ function showBookmarks(list) {
 function bookmarkUpdated() {
 
 	var content = document.querySelector('.content');
-	content.innerHTML = '<span>Bookmark $(currentTitle) is updated</span>';
+	content.innerHTML = `<span>Bookmark ${currentTitle} is updated</span>`;
 
 	showElem(document.querySelector('.loader'), false);
 	showElem(content, true);

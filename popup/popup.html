@@ -33,8 +33,12 @@
     }
 
     @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
     }
 
     .hidden {
@@ -51,7 +55,17 @@
         text-align: center;
         display: inline-block;
         width: 100%;
+        overflow: hidden;
     }
+
+    .select {
+        display: inline-block;
+        width: 100%;
+        padding: 5px;
+        /*margin: 0px -30px 0px 0px;*/
+        border: none;
+    }
+
 
 </style>
 
@@ -61,11 +75,10 @@
     <div class="content">
 
         <!--<div style="text-align: center">-->
-            <!--<button id="buttonOk">Ok</button>-->
-            <!--<button id="buttonCancel">Cancel</button>-->
+        <!--<button id="buttonOk">Ok</button>-->
+        <!--<button id="buttonCancel">Cancel</button>-->
         <!--</div>-->
     </div>
-
 
 
 </div>
