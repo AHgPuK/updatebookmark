@@ -64,6 +64,15 @@ var Lib = {
 		anchor.href = uri;
 
 		return anchor;
+	},
+
+	removeAllNodes: function (node) {
+
+		while (node.hasChildNodes())
+		{
+			node.removeChild(node.childNodes[node.childNodes.length - 1]);
+		}
+
 	}
 }
 
@@ -213,7 +222,8 @@ function noBookmarks() {
 	showElem(document.querySelector('.loader'), false);
 
 	var content = document.querySelector('.content');
-	content.innerHTML = 'This page is not bookmarked';
+	Lib.removeAllNodes(content);
+	content.appendChild(document.createTextNode('This page is not bookmarked'));
 	showElem(content, true);
 
 }
@@ -223,7 +233,8 @@ function bookmarkIsUpToDate() {
 	showElem(document.querySelector('.loader'), false);
 
 	var content = document.querySelector('.content');
-	content.innerHTML = 'Bookmark is up to date';
+	Lib.removeAllNodes(content);
+	content.appendChild(document.createTextNode('Bookmark is up to date'));
 	showElem(content, true);
 
 }
@@ -231,7 +242,7 @@ function bookmarkIsUpToDate() {
 function showBookmarks(list) {
 
 	var content = document.querySelector('.content');
-	content.innerHTML = '';
+	Lib.removeAllNodes(content);
 
 	var title = document.createTextNode('Bookmarks');
 	content.appendChild(title);
@@ -245,12 +256,12 @@ function showBookmarks(list) {
 		var item = list[i];
 
 		var option = document.createElement('option');
-		option.innerHTML = item.title;
+		option.text = item.title;
 		option.value = i;
 		option.setAttribute('data', i);
 		option.addEventListener('dblclick', bookmarkSelected, false);
 
-		select.appendChild(option);
+		select.add(option);
 	}
 
 	showElem(document.querySelector('.loader'), false);
@@ -261,7 +272,10 @@ function showBookmarks(list) {
 function bookmarkUpdated() {
 
 	var content = document.querySelector('.content');
-	content.innerHTML = `<span>Bookmark ${currentTitle} is updated</span>`;
+
+	Lib.removeAllNodes(content);
+
+	content.appendChild(document.createTextNode(`Bookmark ${currentTitle} is updated`));
 
 	showElem(document.querySelector('.loader'), false);
 	showElem(content, true);
