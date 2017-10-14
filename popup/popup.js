@@ -143,8 +143,6 @@ function getBookmarksForURI(uri) {
 
 function browserAction() {
 
-	console.log('Replace bookmark');
-
 	var currentTab = null;
 
 	Promise.resolve()
@@ -161,7 +159,7 @@ function browserAction() {
 	})
 	.then(function (result) {
 
-		console.log(result);
+		// console.log(result);
 
 		if (!result) {
 			// No bookmark match
@@ -190,9 +188,9 @@ function browserAction() {
 
 		showBookmarks(result);
 	})
-	.then(function () {
-		console.debug('Finished');
-	})
+	// .then(function () {
+	// 	console.debug('Finished');
+	// })
 	.catch(function (err) {
 
 		if (err) {
@@ -287,9 +285,9 @@ function bookmarkSelected() {
 
 	var bookmark = BookmarkList[index];
 
-	console.log('id:', bookmark.id);
-	console.log('url:', currentUrl);
-	console.log('title:', currentTitle);
+	// console.log('id:', bookmark.id);
+	// console.log('url:', currentUrl);
+	// console.log('title:', currentTitle);
 
 	browser.bookmarks.update(
 		bookmark.id,

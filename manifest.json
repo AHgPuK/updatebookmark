@@ -1,10 +1,10 @@
 {
   "manifest_version": 2,
-  "name": "Replace bookmark",
-  "version": "1.0.1",
+  "name": "Update bookmark",
+  "version": "1.0.2",
   "description": "This is a Mozilla Firefox extension that allows you to quickly replace an existing bookmark with a bookmark of current page.",
   "icons": {
-    "48": "icons/icon.png"
+    "48": "icons/icon48.png"
   },
   "permissions": [
     "bookmarks",
@@ -12,8 +12,8 @@
   ],
   "browser_action": {
     "browser_style": true,
-    "default_icon": "icons/icon.png",
-    "default_title": "Replace bookmark",
+    "default_icon": "icons/icon48.png",
+    "default_title": "Update bookmark",
     "default_popup": "popup/popup.html"
   }
 }
