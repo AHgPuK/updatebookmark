@@ -289,11 +289,14 @@ function bookmarkUpdated() {
 
 function getTitle(title) {
 
-	var titleElem = document.createElement('div');
+	var titleElem = document.createElement('table');
 	titleElem.className = 'title title-background whiteFont';
 
+	var titleCell = document.createElement('td');
+
 	var text = document.createTextNode(title);
-	titleElem.appendChild(text);
+	titleCell.appendChild(text);
+	titleElem.appendChild(titleCell);
 
 	return titleElem;
 }
