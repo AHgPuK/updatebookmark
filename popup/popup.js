@@ -253,7 +253,7 @@ function showBookmarks(list) {
 
 	var select = document.createElement('select');
 	select.classList.add('select');
-	select.size = 9;
+	select.size = 8;
 	content.appendChild(select);
 
 	for (var i = 0; i < list.length; i++) {
