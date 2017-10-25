@@ -221,7 +221,10 @@ function noBookmarks() {
 
 	var content = document.querySelector('.content');
 	Lib.removeAllNodes(content);
-	content.appendChild(document.createTextNode('This page is not bookmarked'));
+
+	var title = getTitle('This page is not bookmarked');
+
+	content.appendChild(title);
 	showElem(content, true);
 
 }
@@ -232,7 +235,10 @@ function bookmarkIsUpToDate() {
 
 	var content = document.querySelector('.content');
 	Lib.removeAllNodes(content);
-	content.appendChild(document.createTextNode('Bookmark is up to date'));
+
+	var title = getTitle('Bookmark is up to date');
+
+	content.appendChild(title);
 	showElem(content, true);
 
 }
@@ -242,12 +248,12 @@ function showBookmarks(list) {
 	var content = document.querySelector('.content');
 	Lib.removeAllNodes(content);
 
-	var title = document.createTextNode('Bookmarks');
+	var title = getTitle('Bookmarks');
 	content.appendChild(title);
 
 	var select = document.createElement('select');
 	select.classList.add('select');
-	select.size = 8;
+	select.size = 9;
 	content.appendChild(select);
 
 	for (var i = 0; i < list.length; i++) {
@@ -273,10 +279,23 @@ function bookmarkUpdated() {
 
 	Lib.removeAllNodes(content);
 
-	content.appendChild(document.createTextNode(`Bookmark ${currentTitle} is updated`));
+	var title = getTitle(`Bookmark ${currentTitle} is updated`);
+
+	content.appendChild(title);
 
 	showElem(document.querySelector('.loader'), false);
 	showElem(content, true);
+}
+
+function getTitle(title) {
+
+	var titleElem = document.createElement('div');
+	titleElem.className = 'title title-background whiteFont';
+
+	var text = document.createTextNode(title);
+	titleElem.appendChild(text);
+
+	return titleElem;
 }
 
 function bookmarkSelected() {
