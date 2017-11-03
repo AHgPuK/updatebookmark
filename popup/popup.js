@@ -262,8 +262,11 @@ function showBookmarks(list) {
 		var option = document.createElement('option');
 		option.text = item.title;
 		option.value = i;
+		if (i == 0) {
+			option.selected = 'selected';
+		}
 		option.setAttribute('data', i);
-		option.addEventListener('dblclick', bookmarkSelected, false);
+		option.addEventListener('dblclick', onDoubleClick, false);
 
 		select.add(option);
 	}
@@ -271,6 +274,13 @@ function showBookmarks(list) {
 	showElem(document.querySelector('.loader'), false);
 	showElem(content, true);
 
+	select.addEventListener('keypress', onKeyPress, false);
+
+	setTimeout(function () {
+		select.focus();
+	}, 500);
+
+	window.focus();
 }
 
 function bookmarkUpdated() {
@@ -301,11 +311,30 @@ function getTitle(title) {
 	return titleElem;
 }
 
-function bookmarkSelected() {
+function onDoubleClick() {
 
 	var index = Number(this.getAttribute('data'));
 
 	var bookmark = BookmarkList[index];
+
+	bookmarkSelected(bookmark);
+}
+
+function onKeyPress(event) {
+
+	var keyCode = event.keyCode;
+
+	if (!(keyCode == 13 || keyCode == 32))
+	{
+		return;
+	}
+
+	var bookmark = BookmarkList[this.selectedIndex];
+
+	bookmarkSelected(bookmark);
+}
+
+function bookmarkSelected(bookmark) {
 
 	// console.log('id:', bookmark.id);
 	// console.log('url:', currentUrl);
@@ -325,7 +354,7 @@ function bookmarkSelected() {
 		return new Promise(function (fulfill, reject) {
 			setTimeout(function () {
 				fulfill();
-			}, 1000);
+			}, 1500);
 
 		})
 	})
@@ -342,4 +371,24 @@ function bookmarkSelected() {
 
 browserAction();
 
+setTimeout(function () {
 
+	if (typeof browser != 'undefined')
+	{
+		return;
+	}
+
+	showBookmarks([
+			{
+				title: '1',
+			},
+			{
+				title: '2',
+			},
+			{
+				title: '3',
+			},
+		]
+
+	);
+}, 100);
