@@ -276,11 +276,29 @@ function showBookmarks(list) {
 
 	select.addEventListener('keypress', onKeyPress, false);
 
-	setTimeout(function () {
+	select.addEventListener('hover', function () {
 		select.focus();
-	}, 500);
+	}, false);
 
-	window.focus();
+	setTimeout(function () {
+		// document.body.focus();
+		// select.focus();
+		// select.childNodes[0].focus();
+
+		// simulateKeyEvent(document, 'keydown', '\t');
+		// simulateKeyEvent(select, 'keypress', '\t');
+		// simulateKeyEvent(document, 'keyup', '\t');
+
+		try {
+			select.childNodes[1].selected = 'selected';
+			console.log('active:' + document.activeElement);
+		}
+		catch (e)
+		{
+			console.error(e);
+		}
+	}, 200);
+
 }
 
 function bookmarkUpdated() {
@@ -324,6 +342,7 @@ function onKeyPress(event) {
 
 	var keyCode = event.keyCode;
 
+
 	if (!(keyCode == 13 || keyCode == 32))
 	{
 		return;
@@ -332,6 +351,8 @@ function onKeyPress(event) {
 	var bookmark = BookmarkList[this.selectedIndex];
 
 	bookmarkSelected(bookmark);
+
+	console.log('keyCode:' + keyCode);
 }
 
 function bookmarkSelected(bookmark) {
@@ -392,3 +413,23 @@ setTimeout(function () {
 
 	);
 }, 100);
+
+function simulateKeyEvent(elem, action, character) {
+
+	try {
+		var event = new KeyboardEvent(action, {
+			bubbles : true,
+			cancelable : true,
+			char : character,
+			key : character.charCodeAt(0),
+			shiftKey : false,
+			keyCode : character.charCodeAt(0),
+		});
+
+		elem.dispatchEvent(event);
+	}
+	catch (e)
+	{
+		console.log(e);
+	}
+}
