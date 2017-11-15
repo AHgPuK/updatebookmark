@@ -147,9 +147,20 @@ function browserAction() {
 
 	Promise.resolve()
 	.then(function () {
+
+		if (typeof browser == 'undefined')
+		{
+			return Promise.reject(new Error('Not WebExtention'));
+		}
+
 		return browser.tabs.query({active: true, currentWindow: true});
 	})
 	.then(function (tabs) {
+
+		if (! (tabs && tabs[0]))
+		{
+			return Promise.reject(new Error('No tabs in browser. Weird.'));
+		}
 
 		currentTab = tabs[0];
 		currentUrl = currentTab.url;
@@ -262,9 +273,9 @@ function showBookmarks(list) {
 		var option = document.createElement('option');
 		option.text = item.title;
 		option.value = i;
-		if (i == 0) {
-			option.selected = 'selected';
-		}
+		// if (i == 0) {
+		// 	option.selected = 'selected';
+		// }
 		option.setAttribute('data', i);
 		option.addEventListener('dblclick', onDoubleClick, false);
 
@@ -276,11 +287,108 @@ function showBookmarks(list) {
 
 	select.addEventListener('keypress', onKeyPress, false);
 
+	var buttonPanel = document.createElement('div');
+	buttonPanel.classList.add('buttonPanel');
+
+	var buttonsConfig = [
+		{
+			name: 'Update URL',
+			isUpdateUrl: true,
+			isUpdateTitle: false,
+			buttonElem: null,
+		},
+		{
+			name: 'Update a title',
+			isUpdateUrl: false,
+			isUpdateTitle: true,
+			buttonElem: null,
+		},
+		{
+			name: 'Update URL & title',
+			isUpdateUrl: true,
+			isUpdateTitle: true,
+			buttonElem: null,
+		}
+	];
+
+	for (var i = 0; i < buttonsConfig.length; i++)
+	{
+		var config = buttonsConfig[i];
+		var buttonElem = document.createElement('button');
+		buttonElem.classList.add('updateButton');
+		buttonElem.classList.add('title-background');
+		buttonElem.classList.add('whiteFont');
+		buttonElem.appendChild(document.createTextNode(config.name));
+
+		(function (currentConfig) {
+			buttonElem.addEventListener('click', function () {
+				onUpdateButtonClick(currentConfig.isUpdateUrl, currentConfig.isUpdateTitle);
+			}, false);
+		}(config));
+
+		buttonPanel.appendChild(buttonElem);
+
+		config.buttonElem = buttonElem;
+	}
+
+	select.addEventListener('change', function () {
+
+		var index = this.selectedIndex;
+
+		var bookmark = BookmarkList[index];
+
+		updateButtons(bookmark, buttonsConfig);
+
+	}, false);
+
+
+	content.appendChild(buttonPanel);
+
+	var index = 0;
+	select.options[index].selected = 'selected';
+
+	updateButtons(BookmarkList[index], buttonsConfig);
+
 	setTimeout(function () {
 		select.focus();
-	}, 500);
+	}, 100);
 
 	window.focus();
+}
+
+function updateButtons(bookmark, buttonsConfig) {
+
+	for (var i = 0; i < buttonsConfig.length; i++)
+	{
+		var config = buttonsConfig[i];
+
+		var isUrlMatch = (bookmark.url == currentUrl);
+		var isTitleMatch = (bookmark.title == currentTitle);
+
+		if (isUrlMatch != config.isUpdateUrl && isTitleMatch != config.isUpdateTitle)
+		{
+			if (isUrlMatch == false || isTitleMatch == false)
+			{
+				config.buttonElem.classList.remove('hidden');
+			}
+			else
+			{
+				config.buttonElem.classList.add('hidden');
+			}
+		}
+		else
+		{
+			if (isUrlMatch == false && isTitleMatch == false)
+			{
+				config.buttonElem.classList.remove('hidden');
+			}
+			else
+			{
+				config.buttonElem.classList.add('hidden');
+			}
+			// config.buttonElem.classList.add('hidden');
+		}
+	}
 }
 
 function bookmarkUpdated() {
@@ -317,7 +425,7 @@ function onDoubleClick() {
 
 	var bookmark = BookmarkList[index];
 
-	bookmarkSelected(bookmark);
+	bookmarkSelected(bookmark, true, false);
 }
 
 function onKeyPress(event) {
@@ -331,22 +439,37 @@ function onKeyPress(event) {
 
 	var bookmark = BookmarkList[this.selectedIndex];
 
-	bookmarkSelected(bookmark);
+	bookmarkSelected(bookmark, true, false);
 }
 
-function bookmarkSelected(bookmark) {
+function onUpdateButtonClick(isUpdateUrl, isUpdateTitle) {
+
+	var selectElem = document.querySelector('select');
+
+	var bookmark = BookmarkList[selectElem.selectedIndex];
+
+	bookmarkSelected(bookmark, isUpdateUrl, isUpdateTitle);
+}
+
+function bookmarkSelected(bookmark, isUpdateUrl, isUpdateTitle) {
 
 	// console.log('id:', bookmark.id);
 	// console.log('url:', currentUrl);
 	// console.log('title:', currentTitle);
 
-	browser.bookmarks.update(
-		bookmark.id,
-		{
-			title: currentTitle,
-			url: currentUrl,
-		}
-	)
+	var update = {};
+
+	if (isUpdateUrl)
+	{
+		update.url = currentUrl;
+	}
+
+	if (isUpdateTitle)
+	{
+		update.title = currentTitle;
+	}
+
+	browser.bookmarks.update(bookmark.id, update)
 	.then(function () {
 
 		bookmarkUpdated();
@@ -354,7 +477,7 @@ function bookmarkSelected(bookmark) {
 		return new Promise(function (fulfill, reject) {
 			setTimeout(function () {
 				fulfill();
-			}, 1500);
+			}, 2000);
 
 		})
 	})
@@ -378,17 +501,27 @@ setTimeout(function () {
 		return;
 	}
 
-	showBookmarks([
-			{
-				title: '1',
-			},
-			{
-				title: '2',
-			},
-			{
-				title: '3',
-			},
-		]
+	currentTitle = '1';
+	currentUrl = '1';
 
-	);
+	BookmarkList = [
+		{
+			title: '1',
+			url: '1',
+		},
+		{
+			title: '1',
+			url: '2',
+		},
+		{
+			title: '2',
+			url: '1',
+		},
+		{
+			title: '2',
+			url: '2',
+		},
+	];
+
+	showBookmarks(BookmarkList);
 }, 100);
