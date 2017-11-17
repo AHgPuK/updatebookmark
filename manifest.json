@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Update bookmark",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "This add-on allows to replace or update an existing bookmark title and/or URL with a minimal click count..",
   "icons": {
     "48": "icons/icon48.png"
