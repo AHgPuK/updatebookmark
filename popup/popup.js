@@ -647,14 +647,17 @@ function waitForResultWithPromise(func, time) {
 browserAction();
 
 browser.tabs.onRemoved.addListener(function () {
+	init();
 	browserAction();
 });
 
 browser.tabs.onActivated.addListener(function () {
+	init();
 	browserAction();
 });
 
 browser.tabs.onUpdated.addListener(function () {
+	init();
 	browserAction();
 });
 
@@ -662,7 +665,6 @@ setTimeout(function () {
 
 	if (typeof browser != 'undefined')
 	{
-
 		return;
 	}
 
