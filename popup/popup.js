@@ -272,6 +272,7 @@ function showBookmarks(list) {
 
 		var option = document.createElement('option');
 		option.text = item.title;
+		option.title = item.url;
 		option.value = i;
 		// if (i == 0) {
 		// 	option.selected = 'selected';
