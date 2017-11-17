@@ -300,7 +300,9 @@ function showBookmarks(list) {
 	var content = document.querySelector('.content');
 	Lib.removeAllNodes(content);
 
-	var title = getTitle('Bookmarks');
+	var manifest = browser.runtime.getManifest();
+
+	var title = getTitle('Bookmarks v' + manifest.version);
 	content.appendChild(title);
 
 	var select = document.createElement('select');
