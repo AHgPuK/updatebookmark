@@ -153,16 +153,36 @@ function browserAction() {
 			return Promise.reject(new Error('Not WebExtention'));
 		}
 
-		return browser.tabs.query({active: true, currentWindow: true});
+		return waitForResultWithPromise(function () {
+
+			return browser.tabs.query({active: true, currentWindow: true})
+			.then(function (tabs) {
+
+				if (! (tabs && tabs[0]))
+				{
+					console.error('No tabs in browser. Weird.');
+					return false;
+				}
+
+				var tab = tabs[0];
+
+				console.log(tab.status);
+
+				if (tab.status == 'complete')
+				{
+					console.log(tab.status);
+					currentTab = tab;
+					return true;
+				}
+
+				return false;
+			});
+
+		}, 100);
+
 	})
-	.then(function (tabs) {
+	.then(function () {
 
-		if (! (tabs && tabs[0]))
-		{
-			return Promise.reject(new Error('No tabs in browser. Weird.'));
-		}
-
-		currentTab = tabs[0];
 		currentUrl = currentTab.url;
 		currentTitle = currentTab.title;
 
@@ -493,6 +513,80 @@ function bookmarkSelected(bookmark, isUpdateUrl, isUpdateTitle) {
 
 }
 
+function waitForResultWithTimeout(func, time)
+{
+	var promise = new Promise(function (fulfill, reject)
+	{
+		var loopFunc = function ()
+		{
+			try
+			{
+				var result = func();
+
+				if (result)
+				{
+					fulfill(result);
+					return;
+				}
+
+			}
+			catch (e)
+			{
+				reject(e);
+				return;
+			}
+
+			setTimeout(function ()
+			{
+				loopFunc()
+			}, time);
+		}
+
+		loopFunc();
+
+	});
+
+	return promise;
+}
+
+function waitForResultWithPromise(func, time)
+{
+	var promise = new Promise(function (fulfill, reject)
+	{
+		var loopFunc = function ()
+		{
+			Promise.resolve()
+			.then(function ()
+			{
+				return func();
+			})
+			.then(function (result)
+			{
+				if (result)
+				{
+					fulfill(result);
+					return;
+				}
+
+				setTimeout(function ()
+				{
+					loopFunc()
+				}, time || 0);
+
+			})
+			.catch(function (err)
+			{
+				reject(err);
+			})
+		}
+
+		loopFunc();
+
+	})
+
+	return promise;
+}
+
 browserAction();
 
 setTimeout(function () {
@@ -526,3 +620,4 @@ setTimeout(function () {
 
 	showBookmarks(BookmarkList);
 }, 100);
+
