@@ -129,15 +129,12 @@ function getBookmarksForURI(uri) {
 		for (var i = 0; i < result.length; i++)
 		{
 			var bookmark = result[i];
-
 			var url = bookmark.url;
 			var urlObject = Lib.getUrlObject(url);
 
 			if (origin.host == urlObject.host)
 			{
-
 				bookmark.weight = Lib.matchWeight(uri, url, true);
-
 				urls.push(bookmark);
 			}
 		}
@@ -183,12 +180,33 @@ function browserAction() {
 
 				var tab = tabs[0];
 
-				if (tab.status == 'complete')
+				if ((tab.title && tab.url) || tab.status == 'complete')
 				{
 					// console.log(JSON.stringify(tab, null, 4));
 					currentTab = tab;
 					return true;
 				}
+
+				// var promise = new Promise(function (fulfill, reject) {
+				//
+				// 	browser.webNavigation.onDOMContentLoaded.addListener(
+				// 		function (event) {
+				// 			currentTab = tab;
+				// 			fulfill(true);
+				// 		}
+				// 	);
+				//
+				// 	if (tab.status == 'complete')
+				// 	{
+				// 		// console.log(JSON.stringify(tab, null, 4));
+				// 		currentTab = tab;
+				// 		fulfill(true);
+				// 		return;
+				// 	}
+				//
+				// });
+				//
+				// return promise;
 
 				return false;
 			});
@@ -197,6 +215,12 @@ function browserAction() {
 
 	})
 	.then(function () {
+
+		if (!currentTab)
+		{
+			console.error('no current tab');
+			return;
+		}
 
 		currentUrl = currentTab.url;
 		currentTitle = currentTab.title;
@@ -278,7 +302,6 @@ function noBookmarks() {
 
 	content.appendChild(title);
 	showElem(content, true);
-
 }
 
 function bookmarkIsUpToDate() {
@@ -292,7 +315,16 @@ function bookmarkIsUpToDate() {
 
 	content.appendChild(title);
 	showElem(content, true);
+}
 
+function init() {
+
+	showElem(document.querySelector('.loader'), true);
+
+	var content = document.querySelector('.content');
+	Lib.removeAllNodes(content);
+
+	showElem(content, false);
 }
 
 function showBookmarks(list) {
@@ -614,10 +646,23 @@ function waitForResultWithPromise(func, time) {
 
 browserAction();
 
+browser.tabs.onRemoved.addListener(function () {
+	browserAction();
+});
+
+browser.tabs.onActivated.addListener(function () {
+	browserAction();
+});
+
+browser.tabs.onUpdated.addListener(function () {
+	browserAction();
+});
+
 setTimeout(function () {
 
 	if (typeof browser != 'undefined')
 	{
+
 		return;
 	}
 
@@ -645,4 +690,3 @@ setTimeout(function () {
 
 	showBookmarks(BookmarkList);
 }, 100);
-
