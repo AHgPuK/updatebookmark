@@ -1,14 +1,17 @@
 var Lib = {
 	matchWeight: function (u, v, comparePaths) {
-		if (comparePaths) {
+		if (comparePaths)
+		{
 			u = Lib.urlPath(u);
 			v = Lib.urlPath(v);
 		}
 		var max = Math.min(u.length, v.length);
-		for (var i = 0; i < max && u[i] == v[i]; ++i) {
+		for (var i = 0; i < max && u[i] == v[i]; ++i)
+		{
 		}
 
-		if (i == 0 && !comparePaths) {
+		if (i == 0 && !comparePaths)
+		{
 			i = Lib.longestCommonSubstring(u, v) / 3;
 		}
 
@@ -30,27 +33,36 @@ var Lib = {
 		var longestCommonSubstring = 0;
 		/* init 2D array with 0 */
 		var table = Array(string1.length);
-		for (var a = 0; a <= string1.length; a++) {
+		for (var a = 0; a <= string1.length; a++)
+		{
 			table[a] = Array(string2.length);
-			for (var b = 0; b <= string2.length; b++) {
+			for (var b = 0; b <= string2.length; b++)
+			{
 				table[a][b] = 0;
 			}
 		}
 		/* fill table */
-		for (var i = 0; i < string1.length; i++) {
-			for (var j = 0; j < string2.length; j++) {
-				if (string1[i] == string2[j]) {
-					if (table[i][j] == 0) {
+		for (var i = 0; i < string1.length; i++)
+		{
+			for (var j = 0; j < string2.length; j++)
+			{
+				if (string1[i] == string2[j])
+				{
+					if (table[i][j] == 0)
+					{
 						table[i + 1][j + 1] = 1;
 					}
-					else {
+					else
+					{
 						table[i + 1][j + 1] = table[i][j] + 1;
 					}
-					if (table[i + 1][j + 1] > longestCommonSubstring) {
+					if (table[i + 1][j + 1] > longestCommonSubstring)
+					{
 						longestCommonSubstring = table[i + 1][j + 1];
 					}
 				}
-				else {
+				else
+				{
 					table[i + 1][j + 1] = 0;
 				}
 			}
@@ -89,7 +101,8 @@ function getBookmarksForURI(uri) {
 	return Promise.resolve()
 	.then(function () {
 
-		if (protocols.indexOf(origin.protocol) == -1) {
+		if (protocols.indexOf(origin.protocol) == -1)
+		{
 			return Promise.reject();
 		}
 	})
@@ -102,7 +115,8 @@ function getBookmarksForURI(uri) {
 	})
 	.then(function (result) {
 
-		if (result.length == 1) {
+		if (result.length == 1)
+		{
 			return result;
 		}
 
@@ -112,13 +126,15 @@ function getBookmarksForURI(uri) {
 
 		var urls = [];
 
-		for (var i = 0; i < result.length; i++) {
+		for (var i = 0; i < result.length; i++)
+		{
 			var bookmark = result[i];
 
 			var url = bookmark.url;
 			var urlObject = Lib.getUrlObject(url);
 
-			if (origin.host == urlObject.host) {
+			if (origin.host == urlObject.host)
+			{
 
 				bookmark.weight = Lib.matchWeight(uri, url, true);
 
@@ -132,7 +148,8 @@ function getBookmarksForURI(uri) {
 	})
 	.catch(function (err) {
 
-		if (err) {
+		if (err)
+		{
 			return Promise.reject(err);
 		}
 
@@ -158,7 +175,7 @@ function browserAction() {
 			return browser.tabs.query({active: true, currentWindow: true})
 			.then(function (tabs) {
 
-				if (! (tabs && tabs[0]))
+				if (!(tabs && tabs[0]))
 				{
 					console.error('No tabs in browser. Weird.');
 					return false;
@@ -166,11 +183,9 @@ function browserAction() {
 
 				var tab = tabs[0];
 
-				console.log(tab.status);
-
 				if (tab.status == 'complete')
 				{
-					console.log(tab.status);
+					// console.log(JSON.stringify(tab, null, 4));
 					currentTab = tab;
 					return true;
 				}
@@ -192,19 +207,22 @@ function browserAction() {
 
 		// console.log(result);
 
-		if (!result) {
+		if (!result)
+		{
 			// No bookmark match
 			noBookmarks();
 			return;
 		}
 
-		if (result.length == 0) {
+		if (result.length == 0)
+		{
 			// No bookmark match
 			noBookmarks();
 			return;
 		}
 
-		if (result.length == 1) {
+		if (result.length == 1)
+		{
 
 			var item = result[0];
 
@@ -224,7 +242,8 @@ function browserAction() {
 	// })
 	.catch(function (err) {
 
-		if (err) {
+		if (err)
+		{
 			console.error(err);
 		}
 
@@ -237,10 +256,12 @@ function browserAction() {
 
 function showElem(elem, isVisible) {
 
-	if (isVisible) {
+	if (isVisible)
+	{
 		elem.classList.remove('hidden');
 	}
-	else {
+	else
+	{
 		elem.classList.add('hidden');
 	}
 
@@ -287,7 +308,8 @@ function showBookmarks(list) {
 	select.size = 8;
 	content.appendChild(select);
 
-	for (var i = 0; i < list.length; i++) {
+	for (var i = 0; i < list.length; i++)
+	{
 		var item = list[i];
 
 		var option = document.createElement('option');
@@ -370,12 +392,21 @@ function showBookmarks(list) {
 
 	updateButtons(BookmarkList[index], buttonsConfig);
 
-	setTimeout(function () {
-		select.focus();
-	}, 100);
+	browser.commands.onCommand.addListener(function (command) {
 
-	window.focus();
+		if (command == 'update-url')
+		{
+			onUpdateButtonClick(true, false);
+		}
+	});
+
+	// setTimeout(function () {
+	// 	select.focus();
+	// }, 100);
+	//
+	// window.focus();
 }
+
 
 function updateButtons(bookmark, buttonsConfig) {
 
@@ -469,7 +500,10 @@ function onUpdateButtonClick(isUpdateUrl, isUpdateTitle) {
 
 	var bookmark = BookmarkList[selectElem.selectedIndex];
 
-	bookmarkSelected(bookmark, isUpdateUrl, isUpdateTitle);
+	if (bookmark)
+	{
+		bookmarkSelected(bookmark, isUpdateUrl, isUpdateTitle);
+	}
 }
 
 function bookmarkSelected(bookmark, isUpdateUrl, isUpdateTitle) {
@@ -513,12 +547,9 @@ function bookmarkSelected(bookmark, isUpdateUrl, isUpdateTitle) {
 
 }
 
-function waitForResultWithTimeout(func, time)
-{
-	var promise = new Promise(function (fulfill, reject)
-	{
-		var loopFunc = function ()
-		{
+function waitForResultWithTimeout(func, time) {
+	var promise = new Promise(function (fulfill, reject) {
+		var loopFunc = function () {
 			try
 			{
 				var result = func();
@@ -536,8 +567,7 @@ function waitForResultWithTimeout(func, time)
 				return;
 			}
 
-			setTimeout(function ()
-			{
+			setTimeout(function () {
 				loopFunc()
 			}, time);
 		}
@@ -549,33 +579,26 @@ function waitForResultWithTimeout(func, time)
 	return promise;
 }
 
-function waitForResultWithPromise(func, time)
-{
-	var promise = new Promise(function (fulfill, reject)
-	{
-		var loopFunc = function ()
-		{
+function waitForResultWithPromise(func, time) {
+	var promise = new Promise(function (fulfill, reject) {
+		var loopFunc = function () {
 			Promise.resolve()
-			.then(function ()
-			{
+			.then(function () {
 				return func();
 			})
-			.then(function (result)
-			{
+			.then(function (result) {
 				if (result)
 				{
 					fulfill(result);
 					return;
 				}
 
-				setTimeout(function ()
-				{
+				setTimeout(function () {
 					loopFunc()
 				}, time || 0);
 
 			})
-			.catch(function (err)
-			{
+			.catch(function (err) {
 				reject(err);
 			})
 		}

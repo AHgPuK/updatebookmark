@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "Update bookmark",
-  "version": "1.1.0",
-  "description": "This is a Mozilla Firefox extension that allows you to quickly replace an existing bookmark with a bookmark of current page.",
+  "version": "1.1.1",
+  "description": "This add-on allows to replace or update an existing bookmark title and/or URL with a minimal click count..",
   "icons": {
     "48": "icons/icon48.png"
   },
@@ -15,5 +15,13 @@
     "default_icon": "icons/icon48.png",
     "default_title": "Update bookmark",
     "default_popup": "popup/popup.html"
+  },
+  "commands": {
+    "update-url": {
+      "suggested_key": {
+        "default": "Ctrl+Space"
+      },
+      "description": "Send a 'update-url' event to the extension"
+    }
   }
 }

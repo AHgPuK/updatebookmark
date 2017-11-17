@@ -1,4 +1,4 @@
-This is a Mozilla Firefox extension that allows you to quickly update or replace an existing bookmark with a bookmark of current page.
+This add-on allows to replace or update an existing bookmark with minimal click count.
 
 How to install:
 Open a link:
@@ -7,4 +7,8 @@ and click "+ Add to Firefox"
 
 Usage:
 1. Press on add-on icon in toolbar.
-2. Double-click on desired bookmark to update.
+2. Update a bookmark with three options:
+    - Press Ctrl-Space (or Cmd-Space on MacOS)
+    - Double-click on desired bookmark to update.
+    - Click a button
+
