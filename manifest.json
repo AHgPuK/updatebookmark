@@ -22,6 +22,11 @@
         "default": "Ctrl+Space"
       },
       "description": "Send a 'update-url' event to the extension"
+    },
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Ctrl+Q"
+      }
     }
   }
 }

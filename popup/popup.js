@@ -661,6 +661,10 @@ browser.tabs.onUpdated.addListener(function () {
 	browserAction();
 });
 
+// browser.pageAction.onClicked.addListener(function () {
+// 	console.log('pageAction.onClicked');
+// });
+
 setTimeout(function () {
 
 	if (typeof browser != 'undefined')
