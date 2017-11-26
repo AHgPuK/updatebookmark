@@ -329,6 +329,27 @@ function init() {
 
 function showBookmarks(list) {
 
+	var buttonsConfig = [
+		{
+			name: 'Update URL',
+			isUpdateUrl: true,
+			isUpdateTitle: false,
+			buttonElem: null,
+		},
+		{
+			name: 'Update a title',
+			isUpdateUrl: false,
+			isUpdateTitle: true,
+			buttonElem: null,
+		},
+		{
+			name: 'Update URL & title',
+			isUpdateUrl: true,
+			isUpdateTitle: true,
+			buttonElem: null,
+		}
+	];
+
 	var content = document.querySelector('.content');
 	Lib.removeAllNodes(content);
 
@@ -354,7 +375,9 @@ function showBookmarks(list) {
 		// 	option.selected = 'selected';
 		// }
 		option.setAttribute('data', i);
-		option.addEventListener('dblclick', onDoubleClick, false);
+		option.addEventListener('dblclick', function () {
+			onDoubleClick(this, buttonsConfig);
+		}, false);
 
 		select.add(option);
 	}
@@ -366,27 +389,6 @@ function showBookmarks(list) {
 
 	var buttonPanel = document.createElement('div');
 	buttonPanel.classList.add('buttonPanel');
-
-	var buttonsConfig = [
-		{
-			name: 'Update URL',
-			isUpdateUrl: true,
-			isUpdateTitle: false,
-			buttonElem: null,
-		},
-		{
-			name: 'Update a title',
-			isUpdateUrl: false,
-			isUpdateTitle: true,
-			buttonElem: null,
-		},
-		{
-			name: 'Update URL & title',
-			isUpdateUrl: true,
-			isUpdateTitle: true,
-			buttonElem: null,
-		}
-	];
 
 	for (var i = 0; i < buttonsConfig.length; i++)
 	{
@@ -477,6 +479,21 @@ function updateButtons(bookmark, buttonsConfig) {
 	}
 }
 
+function getFirstEnabledButtonIndex(buttonsConfig) {
+
+	for (var i = 0; i < buttonsConfig.length; i++)
+	{
+		var config = buttonsConfig[i];
+
+		if (config.buttonElem.classList.contains('hidden') == false)
+		{
+			return i;;
+		}
+	}
+
+	return -1;
+}
+
 function bookmarkUpdated() {
 
 	var content = document.querySelector('.content');
@@ -505,13 +522,22 @@ function getTitle(title) {
 	return titleElem;
 }
 
-function onDoubleClick() {
+function onDoubleClick(elem, buttonsConfig) {
 
-	var index = Number(this.getAttribute('data'));
+	var index = Number(elem.getAttribute('data'));
 
 	var bookmark = BookmarkList[index];
 
-	bookmarkSelected(bookmark, true, false);
+	var buttonConfigIndex = getFirstEnabledButtonIndex(buttonsConfig);
+
+	if (buttonConfigIndex < 0)
+	{
+		return;
+	}
+
+	var config = buttonsConfig[buttonConfigIndex];
+
+	bookmarkSelected(bookmark, config.isUpdateUrl, config.isUpdateTitle);
 }
 
 function onKeyPress(event) {
