@@ -19,13 +19,15 @@
   "commands": {
     "update-url": {
       "suggested_key": {
-        "default": "Ctrl+Space"
+        "default": "Ctrl+Space",
+        "mac": "MacCtrl+Space"
       },
       "description": "Send a 'update-url' event to the extension"
     },
     "_execute_browser_action": {
       "suggested_key": {
-        "default": "Ctrl+Q"
+        "default": "Ctrl+Q",
+        "mac": "MacCtrl+Q"
       }
     }
   }
