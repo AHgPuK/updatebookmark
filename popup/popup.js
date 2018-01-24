@@ -245,21 +245,31 @@ function browserAction() {
 			return;
 		}
 
-		if (result.length == 1)
-		{
+		var isUpToDate = true;
+		var bookmarksToUpdate = [];
 
-			var item = result[0];
+		for (var i = 0; i < result.length; i++)
+		{
+			var item = result[i];
 
 			if (currentUrl == item.url && currentTitle == item.title)
 			{
-				bookmarkIsUpToDate();
-				return;
+				continue;
 			}
+
+			isUpToDate = false;
+			bookmarksToUpdate.push(item);
+		}
+
+		if (isUpToDate == true)
+		{
+			bookmarkIsUpToDate();
+			return;
 		}
 
 		BookmarkList = result;
 
-		showBookmarks(result);
+		showBookmarks(bookmarksToUpdate);
 	})
 	// .then(function () {
 	// 	console.debug('Finished');
