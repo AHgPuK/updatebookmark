@@ -91,9 +91,6 @@ function bookmarkSelected(bookmarkId, isUrl, isTitle) {
 
 		return browser.bookmarks.update(bookmarkId, update);
 	})
-	.then(function () {
-
-	})
 	.catch(function (err) {
 		return Promise.resolve();
 	})
