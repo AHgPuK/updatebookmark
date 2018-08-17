@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        button {
+            background-color: transparent;
+            border: #3498db 1px solid;
+            border-radius: 5px;
+            padding: 10px 70px;
+            font-size: 11pt;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #dedede;
+        }
+
+        button:active {
+            background-color: #3498db;
+        }
+
+    </style>
+</head>
+
+<body>
+<h2 style="display: inline">
+    <label>Choose default keyboard shortcut action:</label>
+    <br /><br />
+    <form style="display: inline-block;">
+        <div>
+            <nobr>
+                <input id="firstButton" type="radio" name="update" value="firstButton" />
+                <label for="firstButton">First available action</label>
+            </nobr>
+
+            <nobr>
+                <input id="updateUrl" type="radio" name="update" value="updateUrl" />
+                <label for="updateUrl">Update URL only</label>
+            </nobr>
+
+            <nobr>
+                <input id="updateUrlAndTitle" type="radio" name="update" value="updateUrlAndTitle">
+                <label for="updateUrlAndTitle">Update URL and title</label>
+            </nobr>
+
+            <nobr>
+                <input id="updateTitle" type="radio" name="update" value="updateTitle">
+                <label for="updateTitle">Update title</label>
+            </nobr>
+
+            <br /><br />
+
+        </div>
+        <span style="text-align: center; display: inline-block; width: 100%">
+            <button type="submit">Save</button>
+        </span>
+    </form>
+</h2>
+
+<script src="options.js"></script>
+</body>
+
+</html>

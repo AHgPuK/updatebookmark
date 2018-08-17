@@ -395,7 +395,9 @@ function showBookmarks(list) {
 	showElem(document.querySelector('.loader'), false);
 	showElem(content, true);
 
-	select.addEventListener('keypress', onKeyPress, false);
+	select.addEventListener('keypress', function (event) {
+        onKeyPress(this, event, buttonsConfig);
+    }, false);
 
 	var buttonPanel = document.createElement('div');
 	buttonPanel.classList.add('buttonPanel');
@@ -442,7 +444,17 @@ function showBookmarks(list) {
 
 		if (command == 'update-url')
 		{
-			onUpdateButtonClick(true, false);
+            getOptions(buttonsConfig)
+            .then(function (options) {
+
+                if (!options)
+                {
+                    return;
+                }
+
+                onUpdateButtonClick(options.isUrl, options.isTitle);
+
+            })
 		}
 	});
 
@@ -453,6 +465,59 @@ function showBookmarks(list) {
 	// window.focus();
 }
 
+
+function getOptions(buttonsConfig) {
+
+    var retValue = {
+        isUrl: false,
+        isTitle: false,
+    }
+
+    var storageItem = browser.storage.local.get('defaultShortcutAction');
+
+    return storageItem.then((res) => {
+
+        var value = res && res.defaultShortcutAction || 'firstButton';
+
+        if (value == 'firstButton')
+        {
+            var buttonConfigIndex = getFirstEnabledButtonIndex(buttonsConfig);
+
+            if (buttonConfigIndex < 0)
+            {
+                throw new Error('No buttons available');
+            }
+
+            var config = buttonsConfig[buttonConfigIndex];
+
+            retValue.isUrl = config.isUpdateUrl;
+            retValue.isTitle = config.isUpdateTitle;
+        }
+        else if (value == 'updateUrl')
+        {
+            retValue.isUrl = true;
+            retValue.isTitle = false;
+        }
+        else if (value == 'updateUrlAndTitle')
+        {
+            retValue.isUrl = true;
+            retValue.isTitle = true;
+        }
+        else if (value == 'updateTitle')
+        {
+            retValue.isUrl = false;
+            retValue.isTitle = true;
+        }
+
+        return retValue;
+    })
+    .catch(function (err) {
+
+        console.error('getOptions:', err.message);
+        return Promise.resolve(null);
+
+    });
+}
 
 function updateButtons(bookmark, buttonsConfig) {
 
@@ -497,7 +562,7 @@ function getFirstEnabledButtonIndex(buttonsConfig) {
 
 		if (config.buttonElem.classList.contains('hidden') == false)
 		{
-			return i;;
+			return i;
 		}
 	}
 
@@ -538,19 +603,21 @@ function onDoubleClick(elem, buttonsConfig) {
 
 	var bookmark = BookmarkList[index];
 
-	var buttonConfigIndex = getFirstEnabledButtonIndex(buttonsConfig);
+    getOptions(buttonsConfig)
+    .then(function (options) {
 
-	if (buttonConfigIndex < 0)
-	{
-		return;
-	}
+        if (!options)
+        {
+            return;
+        }
 
-	var config = buttonsConfig[buttonConfigIndex];
+        bookmarkSelected(bookmark, options.isUrl, options.isTitle);
 
-	bookmarkSelected(bookmark, config.isUpdateUrl, config.isUpdateTitle);
+    })
+
 }
 
-function onKeyPress(event) {
+function onKeyPress(context, event, buttonsConfig) {
 
 	var keyCode = event.keyCode;
 
@@ -559,9 +626,19 @@ function onKeyPress(event) {
 		return;
 	}
 
-	var bookmark = BookmarkList[this.selectedIndex];
+    var bookmark = BookmarkList[context.selectedIndex];
 
-	bookmarkSelected(bookmark, true, false);
+    getOptions(buttonsConfig)
+    .then(function (options) {
+
+        if (!options)
+        {
+            return;
+        }
+
+        bookmarkSelected(bookmark, options.isUrl, options.isTitle);
+
+    })
 }
 
 function onUpdateButtonClick(isUpdateUrl, isUpdateTitle) {
