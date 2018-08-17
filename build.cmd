@@ -14,6 +14,7 @@ rem )
 
 echo %VERSION%
 
-jar cvfM %OUTPUT_DIR%\%PACKAGE_NAME%-%VERSION%.zip -C %SOURCE_DIR% icons popup options background.js manifest.json
+rem jar cvfM %OUTPUT_DIR%\%PACKAGE_NAME%-%VERSION%.zip -C %SOURCE_DIR% icons popup options background.js manifest.json
+7za a -tzip %OUTPUT_DIR%\%PACKAGE_NAME%-%VERSION%.zip icons popup options background.js manifest.json
 
 rem pause

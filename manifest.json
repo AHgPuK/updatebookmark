@@ -1,4 +1,9 @@
 {
+  "applications": {
+    "gecko": {
+      "id": "{08cc31c0-b1cb-461c-8ba2-95edd9e76a02}"
+    }
+  },
   "manifest_version": 2,
   "name": "Update bookmark",
   "version": "1.4.0",
