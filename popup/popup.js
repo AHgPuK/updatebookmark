@@ -92,7 +92,7 @@ var BookmarkList = [];
 var currentUrl = null;
 var currentTitle = null;
 
-function getBookmarksForURI(uri) {
+function getBookmarksForURI(uri, name) {
 
 	var origin = Lib.getUrlObject(uri);
 
@@ -130,11 +130,14 @@ function getBookmarksForURI(uri) {
 		{
 			var bookmark = result[i];
 			var url = bookmark.url;
+			var title = bookmark.title;
 			var urlObject = Lib.getUrlObject(url);
 
 			if (origin.host == urlObject.host)
 			{
 				bookmark.weight = Lib.matchWeight(uri, url, true);
+				bookmark.weight += Lib.matchWeight(name, title, true);
+				// bookmark.weight += Lib.longestCommonSubstring(name, title) / 3;
 				urls.push(bookmark);
 			}
 		}
@@ -225,7 +228,7 @@ function browserAction() {
 		currentUrl = currentTab.url;
 		currentTitle = currentTab.title;
 
-		return getBookmarksForURI(currentUrl);
+		return getBookmarksForURI(currentUrl, currentTitle);
 	})
 	.then(function (result) {
 
