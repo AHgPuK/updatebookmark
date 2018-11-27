@@ -135,9 +135,16 @@ function getBookmarksForURI(uri, name) {
 
 			if (origin.host == urlObject.host)
 			{
-				bookmark.weight = Lib.matchWeight(uri, url, true) * 1000;
+				bookmark.weight = Lib.matchWeight(uri, url, true) * 100;
+				bookmark.weightUrl = bookmark.weight;
 				// bookmark.weight += Lib.matchWeight(name, title, true);
-				bookmark.weight += Lib.longestCommonSubstring(name, title);
+
+				if (name)
+				{
+					bookmark.weightTitle = Lib.longestCommonSubstring(name, title) * 50;
+					bookmark.weight += bookmark.weightTitle;
+				}
+
 				urls.push(bookmark);
 			}
 		}
@@ -381,7 +388,7 @@ function showBookmarks(list) {
 		var item = list[i];
 
 		var option = document.createElement('option');
-		// option.text = item.weight + ' : ' + item.title;
+		// option.text = `${item.weight}=${item.weightUrl}+${item.weightTitle}` + ' : ' + item.title;
 		option.text = item.title;
 		option.title = item.url;
 		option.value = i;
