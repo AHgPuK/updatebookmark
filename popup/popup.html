@@ -11,6 +11,16 @@
 
 <style>
 
+    .PanelUI-subView[extension="true"] {
+        max-height: unset !important;
+    }
+
+    html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    }
+
     body {
         border: 8px solid #dedede; /* Light grey */
         background-color: #f3f3f3; /* Light grey */
@@ -101,12 +111,13 @@
     }
 
     .updateButton {
-        width: 33.33%;
+        width: calc(100%/3 - 1pt);
         height: 30pt;
         border-radius: 5pt;
         cursor: pointer;
         font-weight: bold;
         text-align: center;
+        vertical-align: middle;
     }
 
 
