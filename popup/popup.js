@@ -281,9 +281,9 @@ function browserAction() {
 
 		showBookmarks(bookmarksToUpdate);
 	})
-	// .then(function () {
-	// 	console.debug('Finished');
-	// })
+	.then(function () {
+
+	})
 	.catch(function (err) {
 
 		if (err)
@@ -833,3 +833,12 @@ setTimeout(function () {
 
 	showBookmarks(BookmarkList);
 }, 100);
+
+if (document.documentElement.clientWidth == 0 && document.documentElement.clientWidth == document.body.clientWidth)
+{
+	document.body.className = 'bodyoverflowmenu';
+}
+else
+{
+	document.body.className = 'body';
+}
