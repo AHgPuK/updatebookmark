@@ -373,7 +373,14 @@ function showBookmarks(list) {
 	var content = document.querySelector('.content');
 	Lib.removeAllNodes(content);
 
-	var manifest = browser.runtime.getManifest();
+	var manifest = {
+		version: 'Standalone'
+	};
+
+	if (typeof browser != 'undefined')
+	{
+		manifest = browser.runtime.getManifest();
+	}
 
 	var title = getTitle('Bookmarks v' + manifest.version);
 	content.appendChild(title);
@@ -451,23 +458,26 @@ function showBookmarks(list) {
 
 	updateButtons(BookmarkList[index], buttonsConfig);
 
-	browser.commands.onCommand.addListener(function (command) {
+	if (typeof browser != 'undefined')
+	{
+		browser.commands.onCommand.addListener(function(command) {
 
-		if (command == 'update-url')
-		{
-            getOptions(buttonsConfig)
-            .then(function (options) {
+			if (command == 'update-url')
+			{
+				getOptions(buttonsConfig)
+				.then(function(options) {
 
-                if (!options)
-                {
-                    return;
-                }
+					if (!options)
+					{
+						return;
+					}
 
-                onUpdateButtonClick(options.isUrl, options.isTitle);
+					onUpdateButtonClick(options.isUrl, options.isTitle);
 
-            })
-		}
-	});
+				})
+			}
+		});
+	}
 
 	// setTimeout(function () {
 	// 	select.focus();
@@ -770,20 +780,23 @@ function waitForResultWithPromise(func, time) {
 
 browserAction();
 
-browser.tabs.onRemoved.addListener(function () {
-	init();
-	browserAction();
-});
+if (typeof browser != 'undefined')
+{
+	browser.tabs.onRemoved.addListener(function() {
+		init();
+		browserAction();
+	});
 
-browser.tabs.onActivated.addListener(function () {
-	init();
-	browserAction();
-});
+	browser.tabs.onActivated.addListener(function() {
+		init();
+		browserAction();
+	});
 
-browser.tabs.onUpdated.addListener(function () {
-	init();
-	browserAction();
-});
+	browser.tabs.onUpdated.addListener(function() {
+		init();
+		browserAction();
+	});
+}
 
 // browser.pageAction.onClicked.addListener(function () {
 // 	console.log('pageAction.onClicked');
@@ -796,8 +809,8 @@ setTimeout(function () {
 		return;
 	}
 
-	currentTitle = '1';
-	currentUrl = '1';
+	currentTitle = '3';
+	currentUrl = '3';
 
 	BookmarkList = [
 		{
