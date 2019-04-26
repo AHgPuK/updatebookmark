@@ -782,19 +782,31 @@ browserAction();
 
 if (typeof browser != 'undefined')
 {
-	browser.tabs.onRemoved.addListener(function() {
-		init();
-		browserAction();
+	browser.tabs.onRemoved.addListener(function(id, changeInfo, tab)
+	{
+		if (tab && tab.active == true && tab.status == 'complete')
+		{
+			init();
+			browserAction();
+		}
 	});
 
-	browser.tabs.onActivated.addListener(function() {
-		init();
-		browserAction();
+	browser.tabs.onActivated.addListener(function(id, changeInfo, tab)
+	{
+		if (tab && tab.active == true && tab.status == 'complete')
+		{
+			init();
+			browserAction();
+		}
 	});
 
-	browser.tabs.onUpdated.addListener(function() {
-		init();
-		browserAction();
+	browser.tabs.onUpdated.addListener(async function(id, changeInfo, tab)
+	{
+		if (tab && tab.active == true && tab.status == 'complete')
+		{
+			init();
+			browserAction();
+		}
 	});
 }
 
