@@ -280,8 +280,10 @@ function browserAction() {
 		BookmarkList = result;
 
 		showBookmarks(bookmarksToUpdate);
+
 	})
 	.then(function () {
+
 
 	})
 	.catch(function (err) {
@@ -610,10 +612,12 @@ function getTitle(title) {
 	titleElem.className = 'title title-background whiteFont';
 
 	var titleCell = document.createElement('td');
+	var titleRow = document.createElement('tr');
 
 	var text = document.createTextNode(title);
 	titleCell.appendChild(text);
-	titleElem.appendChild(titleCell);
+	titleRow.appendChild(titleCell);
+	titleElem.appendChild(titleRow);
 
 	return titleElem;
 }
