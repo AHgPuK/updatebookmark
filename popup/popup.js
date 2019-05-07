@@ -315,8 +315,6 @@ function showElem(elem, isVisible) {
 
 function noBookmarks() {
 
-	showElem(document.querySelector('.loader'), false);
-
 	var content = document.querySelector('.content');
 	Lib.removeAllNodes(content);
 
@@ -324,11 +322,11 @@ function noBookmarks() {
 
 	content.appendChild(title);
 	showElem(content, true);
+
+	showElem(document.querySelector('.loader'), false);
 }
 
 function bookmarkIsUpToDate() {
-
-	showElem(document.querySelector('.loader'), false);
 
 	var content = document.querySelector('.content');
 	Lib.removeAllNodes(content);
@@ -337,6 +335,8 @@ function bookmarkIsUpToDate() {
 
 	content.appendChild(title);
 	showElem(content, true);
+
+	showElem(document.querySelector('.loader'), false);
 }
 
 function init() {
@@ -621,6 +621,7 @@ function getTitle(title) {
 
 	return titleElem;
 }
+
 
 function onDoubleClick(elem, buttonsConfig) {
 
