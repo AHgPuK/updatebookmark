@@ -5,56 +5,70 @@ let MENU_ENTRY = {
 	UPDATE_TITLE_URL: 'UPDATE_TITLE_URL',
 }
 
-browser.contextMenus.create({
-	id: MENU_ENTRY.MAIN_MENU,
-	title: "Update bookmark",
-	contexts: ["bookmark"],
-	type: 'normal',
-	icons: {
-		'32': 'icons/icon32.png'
-	}
-});
+let isChrome = false;
 
-browser.contextMenus.create({
-	id: MENU_ENTRY.UPDATE_URL,
-	parentId: MENU_ENTRY.MAIN_MENU,
-	title: "Update URL",
-	contexts: ["bookmark"],
-	type: 'normal'
-});
+if (typeof chrome !== 'undefined')
+{
+	browser = chrome;
+	isChrome = true;
+}
 
-browser.contextMenus.create({
-	id: MENU_ENTRY.UPDATE_TITLE_URL,
-	parentId: MENU_ENTRY.MAIN_MENU,
-	title: "Update URL/Title",
-	contexts: ["bookmark"],
-	type: 'normal'
-});
+if (!isChrome) {
+	browser.contextMenus.create({
+		id: MENU_ENTRY.MAIN_MENU,
+		title: "Update bookmark",
+		contexts: ["bookmark"],
+		type: 'normal',
+		icons: {
+			'32': 'icons/icon32.png'
+		}
+	});
 
-browser.contextMenus.create({
-	id: MENU_ENTRY.UPDATE_TITLE,
-	parentId: MENU_ENTRY.MAIN_MENU,
-	title: "Update Title",
-	contexts: ["bookmark"],
-	type: 'normal'
-});
+	browser.contextMenus.create({
+		id: MENU_ENTRY.UPDATE_URL,
+		parentId: MENU_ENTRY.MAIN_MENU,
+		title: "Update URL",
+		contexts: ["bookmark"],
+		type: 'normal',
+		icons: {
+			'32': 'icons/icon32.png'
+		}
+	});
 
-browser.contextMenus.onClicked.addListener((info, tab) => {
+	browser.contextMenus.create({
+		id: MENU_ENTRY.UPDATE_TITLE_URL,
+		parentId: MENU_ENTRY.MAIN_MENU,
+		title: "Update URL/Title",
+		contexts: ["bookmark"],
+		type: 'normal',
+		icons: {
+			'32': 'icons/icon32.png'
+		}
+	});
 
-	if (info.menuItemId === MENU_ENTRY.UPDATE_URL)
-	{
-		bookmarkSelected(info.bookmarkId, true, false);
-	}
-	else if (info.menuItemId === MENU_ENTRY.UPDATE_TITLE_URL)
-	{
-		bookmarkSelected(info.bookmarkId, true, true);
-	}
-	else if (info.menuItemId === MENU_ENTRY.UPDATE_TITLE)
-	{
-		bookmarkSelected(info.bookmarkId, false, true);
-	}
+	browser.contextMenus.create({
+		id: MENU_ENTRY.UPDATE_TITLE,
+		parentId: MENU_ENTRY.MAIN_MENU,
+		title: "Update Title",
+		contexts: ["bookmark"],
+		type: 'normal',
+		icons: {
+			'32': 'icons/icon32.png'
+		}
+	});
 
-});
+	browser.contextMenus.onClicked.addListener((info, tab) => {
+
+		if (info.menuItemId === MENU_ENTRY.UPDATE_URL) {
+			bookmarkSelected(info.bookmarkId, true, false);
+		} else if (info.menuItemId === MENU_ENTRY.UPDATE_TITLE_URL) {
+			bookmarkSelected(info.bookmarkId, true, true);
+		} else if (info.menuItemId === MENU_ENTRY.UPDATE_TITLE) {
+			bookmarkSelected(info.bookmarkId, false, true);
+		}
+
+	});
+}
 
 function bookmarkSelected(bookmarkId, isUrl, isTitle) {
 
