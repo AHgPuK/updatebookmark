@@ -1,3 +1,12 @@
+var isChrome = false;
+
+if (typeof chrome !== "undefined")
+{
+	console = chrome.extension.getBackgroundPage().console;
+	browser = chrome;
+	isChrome = true;
+}
+
 var Lib = {
 	matchWeight: function (u, v, comparePaths) {
 		if (comparePaths)
@@ -92,6 +101,24 @@ var BookmarkList = [];
 var currentUrl = null;
 var currentTitle = null;
 
+var promisify = function () {
+
+	let args = Object.values(arguments);
+
+	return new Promise(function (f, r) {
+
+		let func = args.shift();
+
+		args.push(function (result) {
+			f(result);
+		});
+
+		func.apply(this, args)
+
+	})
+
+}
+
 function getBookmarksForURI(uri, name) {
 
 	var origin = Lib.getUrlObject(uri);
@@ -108,6 +135,13 @@ function getBookmarksForURI(uri, name) {
 	})
 	.then(function () {
 
+		if (isChrome)
+		{
+			return promisify(browser.bookmarks.search, {
+				url: uri
+			});
+		}
+
 		return browser.bookmarks.search({
 			url: uri
 		});
@@ -118,6 +152,11 @@ function getBookmarksForURI(uri, name) {
 		if (result.length == 1)
 		{
 			return result;
+		}
+
+		if (isChrome)
+		{
+			return promisify(browser.bookmarks.search, {});
 		}
 
 		return browser.bookmarks.search({});
@@ -167,19 +206,48 @@ function getBookmarksForURI(uri, name) {
 
 function browserAction() {
 
-	var currentTab = null;
+	let isChrome = false;
+	let currentTab = null;
+
+	if (typeof chrome !== 'undefined')
+	{
+		browser = chrome;
+		isChrome = true;
+	}
 
 	Promise.resolve()
 	.then(function () {
 
 		if (typeof browser == 'undefined')
 		{
-			return Promise.reject(new Error('Not WebExtention'));
+			return Promise.reject(new Error('Not WebExtension'));
 		}
 
 		return waitForResultWithPromise(function () {
 
-			return browser.tabs.query({active: true, currentWindow: true})
+			return Promise.resolve()
+			.then(function () {
+
+				if (isChrome)
+				{
+					return new Promise(function (f, r) {
+
+						browser.tabs.query({
+							active: true,
+							currentWindow: true
+						}, function (tabs) {
+							f(tabs);
+						})
+
+					})
+				}
+
+				return browser.tabs.query({
+					active: true,
+					currentWindow: true
+				})
+
+			})
 			.then(function (tabs) {
 
 				if (!(tabs && tabs[0]))
@@ -692,7 +760,17 @@ function bookmarkSelected(bookmark, isUpdateUrl, isUpdateTitle) {
 		update.title = currentTitle;
 	}
 
-	browser.bookmarks.update(bookmark.id, update)
+	return Promise.resolve()
+	.then(function () {
+
+		if (isChrome)
+		{
+			return promisify(browser.bookmarks.update, bookmark.id, update);
+		}
+
+		return browser.bookmarks.update(bookmark.id, update)
+
+	})
 	.then(function () {
 
 		bookmarkUpdated();
