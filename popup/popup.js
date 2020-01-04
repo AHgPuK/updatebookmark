@@ -897,7 +897,21 @@ if (typeof browser != 'undefined')
 // 	console.log('pageAction.onClicked');
 // });
 
+function setLayout () {
+
+	if (document.documentElement.clientWidth == 0 && document.documentElement.clientWidth == document.body.clientWidth)
+	{
+		document.body.className = 'bodyoverflowmenu';
+	}
+	else
+	{
+		document.body.className = 'body';
+	}
+}
+
 setTimeout(function () {
+
+	setLayout();
 
 	if (typeof browser != 'undefined')
 	{
@@ -928,12 +942,3 @@ setTimeout(function () {
 
 	showBookmarks(BookmarkList);
 }, 100);
-
-if (document.documentElement.clientWidth == 0 && document.documentElement.clientWidth == document.body.clientWidth)
-{
-	document.body.className = 'bodyoverflowmenu';
-}
-else
-{
-	document.body.className = 'body';
-}
