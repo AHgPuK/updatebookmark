@@ -1,6 +1,6 @@
 var isChrome = false;
 
-if (typeof chrome !== "undefined")
+if (typeof chrome !== 'undefined' && typeof browser === 'undefined')
 {
 	console = chrome.extension.getBackgroundPage().console;
 	browser = chrome;
@@ -209,7 +209,7 @@ function browserAction() {
 	let isChrome = false;
 	let currentTab = null;
 
-	if (typeof chrome !== 'undefined')
+	if (typeof chrome !== 'undefined' && typeof browser === 'undefined')
 	{
 		browser = chrome;
 		isChrome = true;
@@ -565,6 +565,11 @@ function getOptions(buttonsConfig) {
     }
 
     var storageItem = browser.storage.local.get('defaultShortcutAction');
+
+    if (!storageItem)
+	{
+		return Promise.resolve(retValue);
+	}
 
     return storageItem.then((res) => {
 
