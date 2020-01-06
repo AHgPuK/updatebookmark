@@ -590,7 +590,7 @@ function getButtonsOptions(buttonsConfig) {
 		timeout: 2000,
     }
 
-	getOptions()
+	return getOptions()
 	.then(function (res) {
 
 		retValue.timeout = res.timeout;
