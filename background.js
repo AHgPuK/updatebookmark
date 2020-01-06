@@ -7,7 +7,7 @@ let MENU_ENTRY = {
 
 let isChrome = false;
 
-if (typeof chrome !== 'undefined')
+if (typeof chrome !== 'undefined' && typeof browser === 'undefined')
 {
 	browser = chrome;
 	isChrome = true;
