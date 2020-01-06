@@ -492,8 +492,6 @@ async function showBookmarks(list) {
 
 	const options = await getOptions();
 
-	console.log(options);
-
 	for (let i = 0; i < buttonsConfig.length; i++)
 	{
 		let config = buttonsConfig[i];
@@ -566,14 +564,23 @@ function getOptions() {
 		timeout: 2000,
 	};
 
-	var storageItem = browser.storage.local.get(defaultValues);
+	return Promise.resolve()
+	.then(function () {
 
-	if (!storageItem)
-	{
-		return Promise.resolve(defaultValues);
-	}
+		if (typeof browser === 'undefined')
+		{
+			return;
+		}
 
-	return storageItem.catch(function (err) {
+		return browser.storage.local.get(defaultValues);
+
+	})
+	.then(function (res) {
+
+		return res || defaultValues;
+
+	})
+	.catch(function (err) {
 
 		console.error('getOptions:', err.message);
 		return Promise.resolve(defaultValues);
