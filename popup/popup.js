@@ -347,7 +347,7 @@ function browserAction() {
 
 		BookmarkList = result;
 
-		showBookmarks(bookmarksToUpdate);
+		return showBookmarks(bookmarksToUpdate);
 
 	})
 	.then(function () {
@@ -417,7 +417,7 @@ function init() {
 	showElem(content, false);
 }
 
-function showBookmarks(list) {
+async function showBookmarks(list) {
 
 	var buttonsConfig = [
 		{
@@ -490,24 +490,27 @@ function showBookmarks(list) {
 	var buttonPanel = document.createElement('div');
 	buttonPanel.classList.add('buttonPanel');
 
-	for (var i = 0; i < buttonsConfig.length; i++)
+	const options = await getOptions();
+
+	console.log(options);
+
+	for (let i = 0; i < buttonsConfig.length; i++)
 	{
-		var config = buttonsConfig[i];
-		var buttonElem = document.createElement('button');
+		let config = buttonsConfig[i];
+		let buttonElem = document.createElement('button');
 		buttonElem.classList.add('updateButton');
 		buttonElem.classList.add('title-background');
 		buttonElem.classList.add('whiteFont');
 		buttonElem.appendChild(document.createTextNode(config.name));
 
-		(function (currentConfig) {
-			buttonElem.addEventListener('click', function () {
-				onUpdateButtonClick(currentConfig.isUpdateUrl, currentConfig.isUpdateTitle);
-			}, false);
-		}(config));
+		buttonElem.addEventListener('click', () => {
+			onUpdateButtonClick(config);
+		}, false);
 
 		buttonPanel.appendChild(buttonElem);
 
 		config.buttonElem = buttonElem;
+		config.timeout = options.timeout;
 	}
 
 	select.addEventListener('change', function () {
@@ -534,7 +537,7 @@ function showBookmarks(list) {
 
 			if (command == 'update-url')
 			{
-				getOptions(buttonsConfig)
+				getButtonsOptions(buttonsConfig)
 				.then(function(options) {
 
 					if (!options)
@@ -542,7 +545,7 @@ function showBookmarks(list) {
 						return;
 					}
 
-					onUpdateButtonClick(options.isUrl, options.isTitle);
+					onUpdateButtonClick(options);
 
 				})
 			}
@@ -556,63 +559,83 @@ function showBookmarks(list) {
 	// window.focus();
 }
 
+function getOptions() {
 
-function getOptions(buttonsConfig) {
+	const defaultValues = {
+		defaultShortcutAction: 'firstButton',
+		timeout: 2000,
+	};
 
-    var retValue = {
-        isUrl: false,
-        isTitle: false,
-    }
+	var storageItem = browser.storage.local.get(defaultValues);
 
-    var storageItem = browser.storage.local.get('defaultShortcutAction');
-
-    if (!storageItem)
+	if (!storageItem)
 	{
-		return Promise.resolve(retValue);
+		return Promise.resolve(defaultValues);
 	}
 
-    return storageItem.then((res) => {
+	return storageItem.catch(function (err) {
 
-        var value = res && res.defaultShortcutAction || 'firstButton';
+		console.error('getOptions:', err.message);
+		return Promise.resolve(defaultValues);
 
-        if (value == 'firstButton')
-        {
-            var buttonConfigIndex = getFirstEnabledButtonIndex(buttonsConfig);
+	});
+}
 
-            if (buttonConfigIndex < 0)
-            {
-                throw new Error('No buttons available');
-            }
 
-            var config = buttonsConfig[buttonConfigIndex];
+function getButtonsOptions(buttonsConfig) {
 
-            retValue.isUrl = config.isUpdateUrl;
-            retValue.isTitle = config.isUpdateTitle;
-        }
-        else if (value == 'updateUrl')
-        {
-            retValue.isUrl = true;
-            retValue.isTitle = false;
-        }
-        else if (value == 'updateUrlAndTitle')
-        {
-            retValue.isUrl = true;
-            retValue.isTitle = true;
-        }
-        else if (value == 'updateTitle')
-        {
-            retValue.isUrl = false;
-            retValue.isTitle = true;
-        }
+    var retValue = {
+		isUpdateUrl: false,
+		isUpdateTitle: false,
+		timeout: 2000,
+    }
 
-        return retValue;
-    })
-    .catch(function (err) {
+	getOptions()
+	.then(function (res) {
 
-        console.error('getOptions:', err.message);
-        return Promise.resolve(null);
+		retValue.timeout = res.timeout;
 
-    });
+		var value = res && res.defaultShortcutAction || 'firstButton';
+
+		if (value == 'firstButton')
+		{
+			var buttonConfigIndex = getFirstEnabledButtonIndex(buttonsConfig);
+
+			if (buttonConfigIndex < 0)
+			{
+				throw new Error('No buttons available');
+			}
+
+			var config = buttonsConfig[buttonConfigIndex];
+
+			retValue.isUpdateUrl = config.isUpdateUrl;
+			retValue.isUpdateTitle = config.isUpdateTitle;
+		}
+		else if (value == 'updateUrl')
+		{
+			retValue.isUpdateUrl = true;
+			retValue.isUpdateTitle = false;
+		}
+		else if (value == 'updateUrlAndTitle')
+		{
+			retValue.isUpdateUrl = true;
+			retValue.isUpdateTitle = true;
+		}
+		else if (value == 'updateTitle')
+		{
+			retValue.isUpdateUrl = false;
+			retValue.isUpdateTitle = true;
+		}
+
+		return retValue;
+	})
+	.catch(function (err) {
+
+		console.error('getButtonsOptions:', err.message);
+		return Promise.resolve(null);
+
+	});
+
 }
 
 function updateButtons(bookmark, buttonsConfig) {
@@ -702,7 +725,7 @@ function onDoubleClick(elem, buttonsConfig) {
 
 	var bookmark = BookmarkList[index];
 
-    getOptions(buttonsConfig)
+	getButtonsOptions(buttonsConfig)
     .then(function (options) {
 
         if (!options)
@@ -710,7 +733,7 @@ function onDoubleClick(elem, buttonsConfig) {
             return;
         }
 
-        bookmarkSelected(bookmark, options.isUrl, options.isTitle);
+        bookmarkSelected(bookmark, options);
 
     })
 
@@ -727,7 +750,7 @@ function onKeyPress(context, event, buttonsConfig) {
 
     var bookmark = BookmarkList[context.selectedIndex];
 
-    getOptions(buttonsConfig)
+	getButtonsOptions(buttonsConfig)
     .then(function (options) {
 
         if (!options)
@@ -735,12 +758,12 @@ function onKeyPress(context, event, buttonsConfig) {
             return;
         }
 
-        bookmarkSelected(bookmark, options.isUrl, options.isTitle);
+        bookmarkSelected(bookmark, options);
 
     })
 }
 
-function onUpdateButtonClick(isUpdateUrl, isUpdateTitle) {
+function onUpdateButtonClick(options) {
 
 	var selectElem = document.querySelector('select');
 
@@ -748,17 +771,18 @@ function onUpdateButtonClick(isUpdateUrl, isUpdateTitle) {
 
 	if (bookmark)
 	{
-		bookmarkSelected(bookmark, isUpdateUrl, isUpdateTitle);
+		bookmarkSelected(bookmark, options);
 	}
 }
 
-function bookmarkSelected(bookmark, isUpdateUrl, isUpdateTitle) {
+function bookmarkSelected(bookmark, options) {
 
 	// console.log('id:', bookmark.id);
 	// console.log('url:', currentUrl);
 	// console.log('title:', currentTitle);
 
-	var update = {};
+	const update = {};
+	const {isUpdateUrl, isUpdateTitle, timeout} = options;
 
 	if (isUpdateUrl)
 	{
@@ -788,7 +812,7 @@ function bookmarkSelected(bookmark, isUpdateUrl, isUpdateTitle) {
 		return new Promise(function (fulfill, reject) {
 			setTimeout(function () {
 				fulfill();
-			}, 2000);
+			}, timeout);
 
 		})
 	})
@@ -945,5 +969,5 @@ setTimeout(function () {
 		},
 	];
 
-	showBookmarks(BookmarkList);
+	return showBookmarks(BookmarkList);
 }, 100);

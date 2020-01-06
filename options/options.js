@@ -1,7 +1,10 @@
 function saveOptions(e) {
 
+    let timeout = (document.querySelector('#timeout').value || 0) * 1000;
+
     browser.storage.local.set({
-        defaultShortcutAction: document.querySelector('input:checked').value
+        defaultShortcutAction: document.querySelector('input:checked').value,
+        timeout: timeout,
     });
 
     e.preventDefault();
@@ -9,9 +12,15 @@ function saveOptions(e) {
 
 function restoreOptions() {
 
-    var storageItem = browser.storage.local.get('defaultShortcutAction');
+    const defaultValues = {
+        defaultShortcutAction: 'firstButton',
+        timeout: 2000,
+    };
+
+    const storageItem = browser.storage.local.get(defaultValues);
 
     storageItem.then((res) => {
+        res = res || defaultValues;
 
         let value = res && res.defaultShortcutAction || 'firstButton';
 
@@ -21,6 +30,8 @@ function restoreOptions() {
         {
             elem.checked = true;
         }
+
+        document.querySelector('#timeout').value = (res.timeout / 1000);
     })
     .catch(function (err) {
         console.error('browser.storage.local:', err);
