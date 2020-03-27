@@ -5,6 +5,7 @@ function saveOptions(e) {
     browser.storage.local.set({
         defaultShortcutAction: document.querySelector('input:checked').value,
         timeout: timeout,
+        isContextMenuEnabled: document.querySelector('#isContextMenuEnabled').checked,
     });
 
     e.preventDefault();
@@ -15,6 +16,7 @@ function restoreOptions() {
     const defaultValues = {
         defaultShortcutAction: 'firstButton',
         timeout: 2000,
+        isContextMenuEnabled: true,
     };
 
     const storageItem = browser.storage.local.get(defaultValues);
@@ -32,6 +34,8 @@ function restoreOptions() {
         }
 
         document.querySelector('#timeout').value = (res.timeout / 1000);
+
+        document.querySelector('#isContextMenuEnabled').checked = !!res.isContextMenuEnabled;
     })
     .catch(function (err) {
         console.error('browser.storage.local:', err);

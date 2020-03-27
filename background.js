@@ -13,61 +13,108 @@ if (typeof chrome !== 'undefined' && typeof browser === 'undefined')
 	isChrome = true;
 }
 
+function getOptions() {
+
+	const defaultValues = {
+		defaultShortcutAction: 'firstButton',
+		timeout: 2000,
+		isContextMenuEnabled: true,
+	};
+
+	return Promise.resolve()
+	.then(function () {
+
+		if (typeof browser === 'undefined')
+		{
+			return;
+		}
+
+		return browser.storage.local.get(defaultValues);
+
+	})
+	.then(function (res) {
+
+		return res || defaultValues;
+
+	})
+	.catch(function (err) {
+
+		console.error('getOptions:', err.message);
+		return Promise.resolve(defaultValues);
+
+	});
+}
+
 if (!isChrome) {
-	browser.contextMenus.create({
-		id: MENU_ENTRY.MAIN_MENU,
-		title: "Update bookmark",
-		contexts: ["bookmark"],
-		type: 'normal',
-		icons: {
-			'32': 'icons/icon32.png'
+
+	getOptions()
+	.then(function (res) {
+
+		if (res.isContextMenuEnabled)
+		{
+			browser.contextMenus.create({
+				id: MENU_ENTRY.MAIN_MENU,
+				title: "Update bookmark",
+				contexts: ["bookmark"],
+				type: 'normal',
+				icons: {
+					'32': 'icons/icon32.png'
+				}
+			});
+
+			browser.contextMenus.create({
+				id: MENU_ENTRY.UPDATE_URL,
+				parentId: MENU_ENTRY.MAIN_MENU,
+				title: "Update URL",
+				contexts: ["bookmark"],
+				type: 'normal',
+				icons: {
+					'32': 'icons/icon32.png'
+				}
+			});
+
+			browser.contextMenus.create({
+				id: MENU_ENTRY.UPDATE_TITLE_URL,
+				parentId: MENU_ENTRY.MAIN_MENU,
+				title: "Update URL/Title",
+				contexts: ["bookmark"],
+				type: 'normal',
+				icons: {
+					'32': 'icons/icon32.png'
+				}
+			});
+
+			browser.contextMenus.create({
+				id: MENU_ENTRY.UPDATE_TITLE,
+				parentId: MENU_ENTRY.MAIN_MENU,
+				title: "Update Title",
+				contexts: ["bookmark"],
+				type: 'normal',
+				icons: {
+					'32': 'icons/icon32.png'
+				}
+			});
+
+			browser.contextMenus.onClicked.addListener((info, tab) => {
+
+				if (info.menuItemId === MENU_ENTRY.UPDATE_URL) {
+					bookmarkSelected(info.bookmarkId, true, false);
+				} else if (info.menuItemId === MENU_ENTRY.UPDATE_TITLE_URL) {
+					bookmarkSelected(info.bookmarkId, true, true);
+				} else if (info.menuItemId === MENU_ENTRY.UPDATE_TITLE) {
+					bookmarkSelected(info.bookmarkId, false, true);
+				}
+
+			});
 		}
-	});
 
-	browser.contextMenus.create({
-		id: MENU_ENTRY.UPDATE_URL,
-		parentId: MENU_ENTRY.MAIN_MENU,
-		title: "Update URL",
-		contexts: ["bookmark"],
-		type: 'normal',
-		icons: {
-			'32': 'icons/icon32.png'
-		}
-	});
+	})
+	.catch(function (err) {
 
-	browser.contextMenus.create({
-		id: MENU_ENTRY.UPDATE_TITLE_URL,
-		parentId: MENU_ENTRY.MAIN_MENU,
-		title: "Update URL/Title",
-		contexts: ["bookmark"],
-		type: 'normal',
-		icons: {
-			'32': 'icons/icon32.png'
-		}
-	});
+	})
 
-	browser.contextMenus.create({
-		id: MENU_ENTRY.UPDATE_TITLE,
-		parentId: MENU_ENTRY.MAIN_MENU,
-		title: "Update Title",
-		contexts: ["bookmark"],
-		type: 'normal',
-		icons: {
-			'32': 'icons/icon32.png'
-		}
-	});
 
-	browser.contextMenus.onClicked.addListener((info, tab) => {
 
-		if (info.menuItemId === MENU_ENTRY.UPDATE_URL) {
-			bookmarkSelected(info.bookmarkId, true, false);
-		} else if (info.menuItemId === MENU_ENTRY.UPDATE_TITLE_URL) {
-			bookmarkSelected(info.bookmarkId, true, true);
-		} else if (info.menuItemId === MENU_ENTRY.UPDATE_TITLE) {
-			bookmarkSelected(info.bookmarkId, false, true);
-		}
-
-	});
 }
 
 function bookmarkSelected(bookmarkId, isUrl, isTitle) {
