@@ -491,6 +491,7 @@ async function showBookmarks(list) {
 	buttonPanel.classList.add('buttonPanel');
 
 	const options = await getOptions();
+	const language = getLanguage();
 
 	for (let i = 0; i < buttonsConfig.length; i++)
 	{
@@ -499,7 +500,8 @@ async function showBookmarks(list) {
 		buttonElem.classList.add('updateButton');
 		buttonElem.classList.add('title-background');
 		buttonElem.classList.add('whiteFont');
-		buttonElem.appendChild(document.createTextNode(config.name));
+		const name = getString(config.name, language);
+		buttonElem.appendChild(document.createTextNode(name));
 
 		buttonElem.addEventListener('click', () => {
 			onUpdateButtonClick(config);
@@ -717,7 +719,7 @@ function getTitle(title) {
 	var titleCell = document.createElement('td');
 	var titleRow = document.createElement('tr');
 
-	var text = document.createTextNode(title);
+	var text = document.createTextNode(getString(title, getLanguage()));
 	titleCell.appendChild(text);
 	titleRow.appendChild(titleCell);
 	titleElem.appendChild(titleRow);
@@ -901,32 +903,22 @@ browserAction();
 
 if (typeof browser != 'undefined')
 {
-	browser.tabs.onRemoved.addListener(function(id, changeInfo, tab)
-	{
-		if (tab && tab.active == true && tab.status == 'complete')
-		{
-			init();
-			browserAction();
-		}
-	});
+	const events = [
+		'onRemoved',
+		'onActivated',
+		'onUpdated',
+	];
 
-	browser.tabs.onActivated.addListener(function(id, changeInfo, tab)
-	{
-		if (tab && tab.active == true && tab.status == 'complete')
+	events.map(function (eventName) {
+		browser.tabs[eventName].addListener(function(id, changeInfo, tab)
 		{
-			init();
-			browserAction();
-		}
-	});
-
-	browser.tabs.onUpdated.addListener(async function(id, changeInfo, tab)
-	{
-		if (tab && tab.active == true && tab.status == 'complete')
-		{
-			init();
-			browserAction();
-		}
-	});
+			if (tab && tab.active == true && tab.status == 'complete')
+			{
+				init();
+				browserAction();
+			}
+		});
+	})
 }
 
 // browser.pageAction.onClicked.addListener(function () {
@@ -978,3 +970,59 @@ setTimeout(function () {
 
 	return showBookmarks(BookmarkList);
 }, 100);
+
+var Translations = {
+	en: {
+		'Update URL': 'Update URL',
+		'Update a title': 'Update a title',
+		'Update URL & title': 'Update URL & title',
+		'This page is not bookmarked': 'This page is not bookmarked',
+		'Bookmark is up to date': 'Bookmark is up to date',
+	},
+	ru: {
+		'Update URL': 'Обновить ссылку',
+		'Update a title': 'Обновить название',
+		'Update URL & title': 'Обновить ссылку и название',
+		'This page is not bookmarked': 'Страницы нет в закладках',
+		'Bookmark is up to date': 'Закладка обновления не требует',
+	}
+}
+
+var getLanguage = function () {
+
+	// var lang = getCookie('language');
+	//
+	// if (lang in Translations)
+	// {
+	// 	return lang;
+	// }
+
+	var lang = navigator.language;
+	lang = lang.split('-')[0];
+
+	if (lang in Translations)
+	{
+		return lang;
+	}
+
+	return 'en';
+}
+
+var getString = function (id, language)
+{
+	var langDict = Translations[language] || Translations['en'];
+
+	if (!langDict)
+	{
+		return id;
+	}
+
+	var str = langDict[id];
+
+	if (!str && langDict != Translations['en'])
+	{
+		str = Translations['en'][id] || id;
+	}
+
+	return str || id;
+}
