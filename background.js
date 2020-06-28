@@ -5,6 +5,60 @@ let MENU_ENTRY = {
 	UPDATE_TITLE_URL: 'UPDATE_TITLE_URL',
 }
 
+var Translations = {
+	en: {
+		'Update bookmark': 'Update bookmark',
+		'Update URL': 'Update URL',
+		'Update URL/Title': 'Update URL/Title',
+		'Update Title': 'Update Title',
+	},
+	ru: {
+		'Update bookmark': 'Обновить закладку',
+		'Update URL': 'Обновить ссылку',
+		'Update URL/Title': 'Обновить ссылку и название',
+		'Update Title': 'Обновить название',
+	}
+}
+
+var getLanguage = function () {
+
+	// var lang = getCookie('language');
+	//
+	// if (lang in Translations)
+	// {
+	// 	return lang;
+	// }
+
+	var lang = navigator.language;
+	lang = lang.split('-')[0];
+
+	if (lang in Translations)
+	{
+		return lang;
+	}
+
+	return 'en';
+}
+
+var getString = function (id, language)
+{
+	var langDict = Translations[language] || Translations['en'];
+
+	if (!langDict)
+	{
+		return id;
+	}
+
+	var str = langDict[id];
+
+	if (!str && langDict != Translations['en'])
+	{
+		str = Translations['en'][id] || id;
+	}
+
+	return str || id;
+}
+
 let isChrome = false;
 
 if (typeof chrome !== 'undefined' && typeof browser === 'undefined')
@@ -52,9 +106,11 @@ if (!isChrome) {
 
 		if (res.isContextMenuEnabled)
 		{
+			const lang = getLanguage();
+
 			browser.contextMenus.create({
 				id: MENU_ENTRY.MAIN_MENU,
-				title: "Update bookmark",
+				title: getString('Update bookmark', lang),
 				contexts: ["bookmark"],
 				type: 'normal',
 				icons: {
@@ -65,7 +121,7 @@ if (!isChrome) {
 			browser.contextMenus.create({
 				id: MENU_ENTRY.UPDATE_URL,
 				parentId: MENU_ENTRY.MAIN_MENU,
-				title: "Update URL",
+				title: getString('Update URL', lang),
 				contexts: ["bookmark"],
 				type: 'normal',
 				icons: {
@@ -76,7 +132,7 @@ if (!isChrome) {
 			browser.contextMenus.create({
 				id: MENU_ENTRY.UPDATE_TITLE_URL,
 				parentId: MENU_ENTRY.MAIN_MENU,
-				title: "Update URL/Title",
+				title: getString('Update URL/Title', lang),
 				contexts: ["bookmark"],
 				type: 'normal',
 				icons: {
@@ -87,7 +143,7 @@ if (!isChrome) {
 			browser.contextMenus.create({
 				id: MENU_ENTRY.UPDATE_TITLE,
 				parentId: MENU_ENTRY.MAIN_MENU,
-				title: "Update Title",
+				title: getString('Update Title', lang),
 				contexts: ["bookmark"],
 				type: 'normal',
 				icons: {
