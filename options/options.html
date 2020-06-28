@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <style>
@@ -33,6 +33,14 @@
             padding: 5px;
         }
 
+        html[lang=en] [lang=ru] {
+            display: none;
+        }
+
+        html[lang=ru] [lang=en] {
+            display: none;
+        }
+
     </style>
 </head>
 
@@ -40,46 +48,53 @@
 
 <form style="display: inline-block;">
     <div>
-        <label>Choose default keyboard shortcut action:</label>
+        <label lang="en">Choose default keyboard shortcut action:</label>
+        <label lang="ru">Выберите действие для быстрого доступа с помощью клавиатуры:</label>
     </div>
     <br />
     <div class="border-1">
         <div>
             <input id="firstButton" type="radio" name="update" value="firstButton" />
-            <label for="firstButton">First available action</label>
+            <label lang="en" for="firstButton">First available action</label>
+            <label lang="ru" for="firstButton">Первое доступное действие</label>
         </div>
 
         <div>
             <input id="updateUrl" type="radio" name="update" value="updateUrl" />
-            <label for="updateUrl">Update URL only</label>
+            <label lang="en" for="updateUrl">Update URL only</label>
+            <label lang="ru" for="updateUrl">Обновлять только ссылку</label>
         </div>
 
         <div>
             <input id="updateUrlAndTitle" type="radio" name="update" value="updateUrlAndTitle">
-            <label for="updateUrlAndTitle">Update URL and title</label>
+            <label lang="en" for="updateUrlAndTitle">Update URL and title</label>
+            <label lang="ru" for="updateUrlAndTitle">Обновлять ссылку вместе с названием</label>
         </div>
 
         <div>
             <input id="updateTitle" type="radio" name="update" value="updateTitle">
-            <label for="updateTitle">Update title</label>
+            <label lang="en" for="updateTitle">Update title</label>
+            <label lang="ru" for="updateTitle">Обновлять название</label>
         </div>
     </div>
     <br /><br />
     <div>
         <input id="isContextMenuEnabled" type="checkbox">
-        <label for="isContextMenuEnabled">Enable a context menu</label>
-        <div>
-            Disable and enable the extension after changing and saving this setting.
-        </div>
+        <label lang="en" for="isContextMenuEnabled">Enable a context menu</label>
+        <label lang="ru" for="isContextMenuEnabled">Показывать меню в закладках</label>
+        <div lang="en">Disable and enable the extension after changing and saving this setting.</div>
+        <div lang="ru">После изменения этой настройки нужно выключить и снова включить расширение.</div>
     </div>
     <br />
     <div>
-        <label for="timeout">Show popup after an action (in seconds):</label>
+        <label lang="en" for="timeout">Show popup after an action (in seconds):</label>
+        <label lang="ru" for="timeout">Показывать всплывающее окно после действия в течение (секунд):</label>
         <input id="timeout" type="number" min="0" max="10" step="0.1">
     </div>
     <div style="margin-top: 20px;">
             <span style="text-align: center; display: inline-block; width: 100%">
-                <button type="submit">Save</button>
+                <button lang="en" type="submit">Save</button>
+                <button lang="ru" type="submit">Сохранить</button>
             </span>
     </div>
 </form>
