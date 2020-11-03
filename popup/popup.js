@@ -123,7 +123,7 @@ function getBookmarksForURI(uri, name) {
 
 	var origin = Lib.getUrlObject(uri);
 
-	var protocols = ['http:', 'https:'];
+	var protocols = ['http:', 'https:', 'file:'];
 
 	return Promise.resolve()
 	.then(function () {
@@ -135,16 +135,16 @@ function getBookmarksForURI(uri, name) {
 	})
 	.then(function () {
 
+		var query = origin.protocol == 'file:' ? decodeURI(uri) : {
+			url: uri
+		};
+
 		if (isChrome)
 		{
-			return promisify(browser.bookmarks.search, {
-				url: uri
-			});
+			return promisify(browser.bookmarks.search, query);
 		}
 
-		return browser.bookmarks.search({
-			url: uri
-		});
+		return browser.bookmarks.search(query);
 
 	})
 	.then(function (result) {
