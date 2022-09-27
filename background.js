@@ -3,6 +3,7 @@ let MENU_ENTRY = {
 	UPDATE_TITLE: 'UPDATE_TITLE',
 	UPDATE_URL: 'UPDATE_URL',
 	UPDATE_TITLE_URL: 'UPDATE_TITLE_URL',
+	UPDATE_URL_FROM_LINK: 'UPDATE_URL_FROM_LINK',
 }
 
 var Translations = {
@@ -57,14 +58,6 @@ var getString = function (id, language)
 	}
 
 	return str || id;
-}
-
-let isChrome = false;
-
-if (typeof chrome !== 'undefined' && typeof browser === 'undefined')
-{
-	browser = chrome;
-	isChrome = true;
 }
 
 function getOptions() {
@@ -151,6 +144,16 @@ if (!isChrome) {
 				}
 			});
 
+			browser.contextMenus.create({
+				id: MENU_ENTRY.UPDATE_URL_FROM_LINK,
+				title: getString('Update URL', lang),
+				contexts: ["link"],
+				type: 'normal',
+				icons: {
+					'32': 'icons/icon32.png'
+				}
+			});
+
 			browser.contextMenus.onClicked.addListener((info, tab) => {
 
 				if (info.menuItemId === MENU_ENTRY.UPDATE_URL) {
@@ -159,6 +162,11 @@ if (!isChrome) {
 					bookmarkSelected(info.bookmarkId, true, true);
 				} else if (info.menuItemId === MENU_ENTRY.UPDATE_TITLE) {
 					bookmarkSelected(info.bookmarkId, false, true);
+				} else if (info.menuItemId === MENU_ENTRY.UPDATE_URL_FROM_LINK) {
+					// debugger
+					// console(info);
+					bookmarkFindAndUpdate(info.linkUrl);
+					// bookmarkUpdate(info);
 				}
 
 			});
@@ -209,6 +217,91 @@ function bookmarkSelected(bookmarkId, isUrl, isTitle) {
 		return browser.bookmarks.update(bookmarkId, update);
 	})
 	.catch(function (err) {
+		return Promise.resolve();
+	})
+
+}
+
+function bookmarkFindAndUpdate(url) {
+
+	Promise.resolve()
+	.then(function () {
+
+		if (typeof browser == 'undefined')
+		{
+			return Promise.reject(new Error('Not WebExtension'));
+		}
+
+		return Lib.getCurrentTab();
+
+	})
+	.then(function (currentTab) {
+
+		if (!currentTab)
+		{
+			console.error('no current tab');
+			return;
+		}
+
+		currentUrl = currentTab.url;
+		currentTitle = currentTab.title;
+
+		return Lib.getBookmarksForURI(currentUrl, currentTitle);
+	})
+	.then(function (result) {
+
+		// console.log(result);
+
+		if (!result)
+		{
+			// No bookmark match
+			noBookmarks();
+			return;
+		}
+
+		if (result.length == 0)
+		{
+			// No bookmark match
+			noBookmarks();
+			return;
+		}
+
+		var isUpToDate = true;
+		var bookmarksToUpdate = [];
+
+		for (var i = 0; i < result.length; i++)
+		{
+			var item = result[i];
+			isUpToDate = false;
+			bookmarksToUpdate.push(item);
+		}
+
+		if (isUpToDate == true)
+		{
+			return;
+		}
+
+		return bookmarksToUpdate;
+
+	})
+	.then(function (bookmarksToUpdate) {
+
+		if (!bookmarksToUpdate) return;
+
+		var bookmark = bookmarksToUpdate[0];
+
+		return browser.bookmarks.update(bookmark.id, {
+			url: url,
+		})
+
+	})
+	.catch(function (err) {
+
+		if (err)
+		{
+			console.error(err);
+		}
+
 		return Promise.resolve();
 	})
 
