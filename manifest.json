@@ -6,7 +6,7 @@
   },
   "manifest_version": 2,
   "name": "Update bookmark",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "This add-on allows to replace or update an existing bookmark title and/or URL with a minimal click count..",
   "icons": {
     "48": "icons/icon48.png"
@@ -20,13 +20,6 @@
   "background": {
     "scripts": ["common/lib.js", "background.js"]
   },
-  "content_scripts": [
-    {
-      "matches": ["*://*.mozilla.org/*"],
-      "run_at": "document_start",
-      "js": ["common/lib.js"]
-    }
-  ],
   "browser_action": {
     "browser_style": true,
     "default_icon": "icons/icon48.png",
