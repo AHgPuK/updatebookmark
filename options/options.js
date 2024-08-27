@@ -1,8 +1,10 @@
+
+
 function saveOptions(e) {
 
     let timeout = (document.querySelector('#timeout').value || 0) * 1000;
 
-    browser.storage.local.set({
+    chrome.storage.local.set({
         defaultShortcutAction: document.querySelector('input:checked').value,
         timeout: timeout,
         isContextMenuEnabled: document.querySelector('#isContextMenuEnabled').checked,
@@ -21,7 +23,7 @@ function restoreOptions() {
         isContextMenuEnabled: true,
     };
 
-    const storageItem = browser.storage.local.get(defaultValues);
+    const storageItem = chrome.storage.local.get(defaultValues);
 
     storageItem.then((res) => {
         res = res || defaultValues;
@@ -40,7 +42,7 @@ function restoreOptions() {
         document.querySelector('#isContextMenuEnabled').checked = !!res.isContextMenuEnabled;
     })
     .catch(function (err) {
-        console.error('browser.storage.local:', err);
+        console.error('chrome.storage.local:', err);
     });
 
 }

@@ -42,7 +42,7 @@ function browserAction() {
 	})
 	.then(function (result) {
 
-		// console.log(result);
+		console.log(result);
 
 		if (!result)
 		{
@@ -642,9 +642,9 @@ function setLayout () {
 	}
 }
 
-setTimeout(function () {
+setLayout();
 
-	setLayout();
+setTimeout(function () {
 
 	if (typeof browser != 'undefined')
 	{

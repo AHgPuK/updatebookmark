@@ -1,3 +1,9 @@
+try {
+	importScripts('common/lib.js');
+} catch (e) {
+	console.error(e);
+}
+
 let MENU_ENTRY = {
 	MAIN_MENU: 'MAIN_MENU',
 	UPDATE_TITLE: 'UPDATE_TITLE',
