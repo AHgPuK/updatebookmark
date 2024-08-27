@@ -2,7 +2,7 @@ var isChrome = false;
 
 if (typeof chrome !== 'undefined' && typeof browser === 'undefined')
 {
-	console = chrome.extension.getBackgroundPage().console;
+	console = chrome.runtime.getBackgroundPage().console;
 	browser = chrome;
 	isChrome = true;
 }

@@ -4,9 +4,9 @@
       "id": "{08cc31c0-b1cb-461c-8ba2-95edd9e76a02}"
     }
   },
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Update bookmark",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "description": "This add-on allows to replace or update an existing bookmark title and/or URL with a minimal click count..",
   "icons": {
     "48": "icons/icon48.png"
@@ -20,8 +20,7 @@
   "background": {
     "scripts": ["common/lib.js", "background.js"]
   },
-  "browser_action": {
-    "browser_style": true,
+  "action": {
     "default_icon": "icons/icon48.png",
     "theme_icons": [{
         "light": "icons/icon32-light.png",
@@ -32,8 +31,7 @@
     "default_popup": "popup/popup.html"
   },
   "options_ui": {
-    "page": "options/options.html",
-    "browser_style": true
+    "page": "options/options.html"
   },
   "commands": {
     "update-url": {
@@ -43,7 +41,7 @@
       },
       "description": "Send a 'update-url' event to the extension"
     },
-    "_execute_browser_action": {
+    "_execute_action": {
       "suggested_key": {
         "default": "Ctrl+Q",
         "mac": "MacCtrl+Q"
