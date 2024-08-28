@@ -15,6 +15,17 @@ rem )
 echo %VERSION%
 
 rem jar cvfM %OUTPUT_DIR%\%PACKAGE_NAME%-%VERSION%.zip -C %SOURCE_DIR% icons popup options background.js manifest.json
-7za a -tzip %OUTPUT_DIR%\%PACKAGE_NAME%-%VERSION%.zip icons common popup options background.js manifest.json
+set ARCHIVE_NAME=%OUTPUT_DIR%\Firefox-%PACKAGE_NAME%-%VERSION%.zip
+7za a -tzip %ARCHIVE_NAME% icons common popup options background.js manifest.json
 
-rem pause
+REM   -- Now we build for chrome
+echo   ------------- Generate manifest -----------------
+powershell -File .\generate.chrome.manifest.ps1
+set ARCHIVE_NAME=%OUTPUT_DIR%\Chrome-%PACKAGE_NAME%-%VERSION%.zip
+del %ARCHIVE_NAME% /Q
+7za a -tzip %ARCHIVE_NAME% icons common popup options background.js manifest.chrome.json
+7za rn %ARCHIVE_NAME% manifest.chrome.json manifest.json
+
+del manifest.chrome.json /Q
+
+pause
