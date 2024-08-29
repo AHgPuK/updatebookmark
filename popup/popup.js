@@ -5,7 +5,6 @@ var currentTitle = null;
 
 
 
-
 function browserAction() {
 
 	let isChrome = false;

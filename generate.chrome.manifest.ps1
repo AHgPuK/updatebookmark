@@ -3,7 +3,7 @@ $manifest = Get-Content -Path ".\manifest.json" -Raw
 
 # Array of regex patterns to remove specific fields and commas
 $patterns = @(
-    '(?m)^\s*"scripts":\s*[^,]+,?\s*\n',
+    '(?m)^\s*"scripts":.*?\n',
     '(?m)^\s*"browser_specific_settings":\s*[^,]+,?\s*\n'
     # Add more patterns here if needed
 )

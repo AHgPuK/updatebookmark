@@ -1,11 +1,15 @@
-var isChrome = false;
+const detectBrowser = function () {
+	const manifest = chrome.runtime.getManifest();
 
-if (typeof chrome !== 'undefined' && typeof browser === 'undefined')
-{
-	// console = chrome.extension.getBackgroundPage().console;
-	browser = chrome;
-	isChrome = true;
+	if ('scripts' in manifest.background)
+	{
+		return 'Firefox';
+	}
+
+	return 'Chrome';
 }
+
+var isChrome = detectBrowser() == 'Chrome';
 
 var Lib = {
 	matchWeight: function (u, v, comparePaths) {
@@ -81,8 +85,14 @@ var Lib = {
 
 	getUrlObject: function (uri) {
 
-		var anchor = document.createElement('a');
-		anchor.href = uri;
+		let anchor = null;
+
+		try {
+			anchor = new URL(uri);
+		}
+		catch (err) {
+			anchor = new URL('a:');
+		}
 
 		return anchor;
 	},
@@ -136,10 +146,10 @@ var Lib = {
 
 			if (isChrome)
 			{
-				return Lib.promisify(browser.bookmarks.search, query);
+				return Lib.promisify(chrome.bookmarks.search, query);
 			}
 
-			return browser.bookmarks.search(query);
+			return chrome.bookmarks.search(query);
 
 		})
 		.then(function (result) {
@@ -151,10 +161,10 @@ var Lib = {
 
 			if (isChrome)
 			{
-				return Lib.promisify(browser.bookmarks.search, {});
+				return Lib.promisify(chrome.bookmarks.search, {});
 			}
 
-			return browser.bookmarks.search({});
+			return chrome.bookmarks.search({});
 		})
 		.then(function (result) {
 
@@ -211,7 +221,7 @@ var Lib = {
 				{
 					return new Promise(function (f, r) {
 
-						browser.tabs.query({
+						chrome.tabs.query({
 							active: true,
 							currentWindow: true
 						}, function (tabs) {
@@ -221,7 +231,7 @@ var Lib = {
 					})
 				}
 
-				return browser.tabs.query({
+				return chrome.tabs.query({
 					active: true,
 					currentWindow: true
 				})
@@ -246,7 +256,7 @@ var Lib = {
 
 				// var promise = new Promise(function (fulfill, reject) {
 				//
-				// 	browser.webNavigation.onDOMContentLoaded.addListener(
+				// 	chrome.webNavigation.onDOMContentLoaded.addListener(
 				// 		function (event) {
 				// 			currentTab = tab;
 				// 			fulfill(true);
