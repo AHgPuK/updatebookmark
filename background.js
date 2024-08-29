@@ -1,7 +1,14 @@
-try {
-	importScripts('common/lib.js');
-} catch (e) {
-	console.error(e);
+if( 'function' === typeof importScripts) {
+	try {
+		importScripts('common/lib.js');
+	} catch (e) {
+		console.error(e);
+	}
+}
+
+if (typeof Lib === 'undefined')
+{
+	console.log('Lib NOT loaded');
 }
 
 let MENU_ENTRY = {
@@ -77,12 +84,7 @@ function getOptions() {
 	return Promise.resolve()
 	.then(function () {
 
-		if (typeof browser === 'undefined')
-		{
-			return;
-		}
-
-		return browser.storage.local.get(defaultValues);
+		return chrome.storage.local.get(defaultValues);
 
 	})
 	.then(function (res) {
@@ -98,8 +100,7 @@ function getOptions() {
 	});
 }
 
-if (!isChrome) {
-
+const registerMenuActions = function () {
 	getOptions()
 	.then(function (res) {
 
@@ -107,89 +108,112 @@ if (!isChrome) {
 		{
 			const lang = getLanguage();
 
-			browser.contextMenus.create({
-				id: MENU_ENTRY.MAIN_MENU,
-				title: getString('Update bookmark', lang),
-				contexts: ["bookmark"],
-				type: 'normal',
-				icons: {
-					'32': 'icons/icon32.png'
+			const config = [
+				{
+					id: MENU_ENTRY.MAIN_MENU,
+					title: getString('Update bookmark', lang),
+					contexts: ["bookmark"],
+					type: 'normal',
+					icons: {
+						'32': 'icons/icon32.png'
+					}
+				},
+				{
+					id: MENU_ENTRY.UPDATE_URL,
+					parentId: MENU_ENTRY.MAIN_MENU,
+					title: getString('Update URL', lang),
+					contexts: ["bookmark"],
+					type: 'normal',
+					icons: {
+						'32': 'icons/icon32.png'
+					}
+				},
+				{
+					id: MENU_ENTRY.UPDATE_TITLE_URL,
+					parentId: MENU_ENTRY.MAIN_MENU,
+					title: getString('Update URL/Title', lang),
+					contexts: ["bookmark"],
+					type: 'normal',
+					icons: {
+						'32': 'icons/icon32.png'
+					}
+				},
+				{
+					id: MENU_ENTRY.UPDATE_TITLE,
+					parentId: MENU_ENTRY.MAIN_MENU,
+					title: getString('Update Title', lang),
+					contexts: ["bookmark"],
+					type: 'normal',
+					icons: {
+						'32': 'icons/icon32.png'
+					}
+				},
+				{
+					id: MENU_ENTRY.UPDATE_URL_FROM_LINK,
+					title: getString('Update URL', lang),
+					contexts: ["link"],
+					type: 'normal',
+					icons: {
+						'32': 'icons/icon32.png'
+					},
 				}
-			});
+			].map(menu => {
+				if (isChrome)
+				{
+					if (menu.contexts[0] == 'bookmark')
+					{
+						return null;
+					}
 
-			browser.contextMenus.create({
-				id: MENU_ENTRY.UPDATE_URL,
-				parentId: MENU_ENTRY.MAIN_MENU,
-				title: getString('Update URL', lang),
-				contexts: ["bookmark"],
-				type: 'normal',
-				icons: {
-					'32': 'icons/icon32.png'
-				}
-			});
-
-			browser.contextMenus.create({
-				id: MENU_ENTRY.UPDATE_TITLE_URL,
-				parentId: MENU_ENTRY.MAIN_MENU,
-				title: getString('Update URL/Title', lang),
-				contexts: ["bookmark"],
-				type: 'normal',
-				icons: {
-					'32': 'icons/icon32.png'
-				}
-			});
-
-			browser.contextMenus.create({
-				id: MENU_ENTRY.UPDATE_TITLE,
-				parentId: MENU_ENTRY.MAIN_MENU,
-				title: getString('Update Title', lang),
-				contexts: ["bookmark"],
-				type: 'normal',
-				icons: {
-					'32': 'icons/icon32.png'
-				}
-			});
-
-			browser.contextMenus.create({
-				id: MENU_ENTRY.UPDATE_URL_FROM_LINK,
-				title: getString('Update URL', lang),
-				contexts: ["link"],
-				type: 'normal',
-				icons: {
-					'32': 'icons/icon32.png'
-				}
-			});
-
-			browser.contextMenus.onClicked.addListener((info, tab) => {
-
-				if (info.menuItemId === MENU_ENTRY.UPDATE_URL) {
-					bookmarkSelected(info.bookmarkId, true, false);
-				} else if (info.menuItemId === MENU_ENTRY.UPDATE_TITLE_URL) {
-					bookmarkSelected(info.bookmarkId, true, true);
-				} else if (info.menuItemId === MENU_ENTRY.UPDATE_TITLE) {
-					bookmarkSelected(info.bookmarkId, false, true);
-				} else if (info.menuItemId === MENU_ENTRY.UPDATE_URL_FROM_LINK) {
-					// debugger
-					// console(info);
-					bookmarkFindAndUpdate(info.linkUrl);
-					// bookmarkUpdate(info);
+					delete menu.icons;
 				}
 
-			});
+				return menu;
+			})
+			.filter(m => m);
+
+			for (const menu of config) {
+				try {
+					chrome.contextMenus.create(menu);
+				}
+				catch (err) {
+					// console.log(err.message);
+				}
+			}
 		}
-
 	})
 	.catch(function (err) {
-
+		console.log(err);
 	})
-
-
-
 }
+
+if (chrome.runtime.onInstalled)
+{
+	chrome.runtime.onInstalled.addListener(function () {
+		registerMenuActions();
+	})
+}
+else
+{
+	registerMenuActions();
+}
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+	if (info.menuItemId === MENU_ENTRY.UPDATE_URL) {
+		bookmarkSelected(info.bookmarkId, true, false);
+	} else if (info.menuItemId === MENU_ENTRY.UPDATE_TITLE_URL) {
+		bookmarkSelected(info.bookmarkId, true, true);
+	} else if (info.menuItemId === MENU_ENTRY.UPDATE_TITLE) {
+		bookmarkSelected(info.bookmarkId, false, true);
+	} else if (info.menuItemId === MENU_ENTRY.UPDATE_URL_FROM_LINK) {
+		// debugger
+		bookmarkFindAndUpdate(info.linkUrl);
+	}
+});
 
 function bookmarkSelected(bookmarkId, isUrl, isTitle) {
 
-	browser.tabs.query({active: true, currentWindow: true})
+	chrome.tabs.query({active: true, currentWindow: true})
 	.then(function (tabs) {
 
 		if (!(tabs && tabs[0]))
@@ -220,7 +244,7 @@ function bookmarkSelected(bookmarkId, isUrl, isTitle) {
 			update.title = tab.title;
 		}
 
-		return browser.bookmarks.update(bookmarkId, update);
+		return chrome.bookmarks.update(bookmarkId, update);
 	})
 	.catch(function (err) {
 		return Promise.resolve();
@@ -233,7 +257,7 @@ function bookmarkFindAndUpdate(url) {
 	Promise.resolve()
 	.then(function () {
 
-		if (typeof browser == 'undefined')
+		if (typeof chrome == 'undefined')
 		{
 			return Promise.reject(new Error('Not WebExtension'));
 		}
@@ -296,7 +320,7 @@ function bookmarkFindAndUpdate(url) {
 
 		var bookmark = bookmarksToUpdate[0];
 
-		return browser.bookmarks.update(bookmark.id, {
+		return chrome.bookmarks.update(bookmark.id, {
 			url: url,
 		})
 
