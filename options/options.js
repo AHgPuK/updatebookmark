@@ -8,6 +8,7 @@ function saveOptions(e) {
         defaultShortcutAction: document.querySelector('input:checked').value,
         timeout: timeout,
         isContextMenuEnabled: document.querySelector('#isContextMenuEnabled').checked,
+        isStrictSearch: document.querySelector('#isStrictSearch').checked,
     });
 
     e.preventDefault();
@@ -21,6 +22,7 @@ function restoreOptions() {
         defaultShortcutAction: 'firstButton',
         timeout: 2000,
         isContextMenuEnabled: true,
+        isStrictSearch: false,
     };
 
     const storageItem = chrome.storage.local.get(defaultValues);

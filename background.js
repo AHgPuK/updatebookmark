@@ -73,35 +73,8 @@ var getString = function (id, language)
 	return str || id;
 }
 
-function getOptions() {
-
-	const defaultValues = {
-		defaultShortcutAction: 'firstButton',
-		timeout: 2000,
-		isContextMenuEnabled: true,
-	};
-
-	return Promise.resolve()
-	.then(function () {
-
-		return chrome.storage.local.get(defaultValues);
-
-	})
-	.then(function (res) {
-
-		return res || defaultValues;
-
-	})
-	.catch(function (err) {
-
-		console.error('getOptions:', err.message);
-		return Promise.resolve(defaultValues);
-
-	});
-}
-
 const registerMenuActions = function () {
-	getOptions()
+	Lib.getOptions()
 	.then(function (res) {
 
 		if (res.isContextMenuEnabled)
@@ -276,7 +249,14 @@ function bookmarkFindAndUpdate(url) {
 		currentUrl = currentTab.url;
 		currentTitle = currentTab.title;
 
-		return Lib.getBookmarksForURI(currentUrl, currentTitle);
+		return Lib.getOptions();
+	})
+		.then(function (options) {
+
+			// Always use strict search on context menu
+			options.isStrictSearch = true;
+			return Lib.getBookmarksForURI(currentUrl, currentTitle, options);
+
 	})
 	.then(function (result) {
 

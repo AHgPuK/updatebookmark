@@ -1,8 +1,6 @@
-var BookmarkList = [];
-var currentUrl = null;
-var currentTitle = null;
-
-
+let BookmarkList = [];
+let currentUrl = null;
+let currentTitle = null;
 
 
 function browserAction() {
@@ -37,7 +35,12 @@ function browserAction() {
 		currentUrl = currentTab.url;
 		currentTitle = currentTab.title;
 
-		return Lib.getBookmarksForURI(currentUrl, currentTitle);
+		return Lib.getOptions();
+	})
+	.then(function (options) {
+
+		return Lib.getBookmarksForURI(currentUrl, currentTitle, options);
+
 	})
 	.then(function (result) {
 
@@ -224,7 +227,7 @@ async function showBookmarks(list) {
 	var buttonPanel = document.createElement('div');
 	buttonPanel.classList.add('buttonPanel');
 
-	const options = await getOptions();
+	const options = await Lib.getOptions();
 	const language = getLanguage();
 
 	for (let i = 0; i < buttonsConfig.length; i++)
@@ -293,37 +296,6 @@ async function showBookmarks(list) {
 	// window.focus();
 }
 
-function getOptions() {
-
-	const defaultValues = {
-		defaultShortcutAction: 'firstButton',
-		timeout: 2000,
-	};
-
-	return Promise.resolve()
-	.then(function () {
-
-		if (typeof browser === 'undefined')
-		{
-			return;
-		}
-
-		return browser.storage.local.get(defaultValues);
-
-	})
-	.then(function (res) {
-
-		return res || defaultValues;
-
-	})
-	.catch(function (err) {
-
-		console.error('getOptions:', err.message);
-		return Promise.resolve(defaultValues);
-
-	});
-}
-
 
 function getButtonsOptions(buttonsConfig) {
 
@@ -333,7 +305,7 @@ function getButtonsOptions(buttonsConfig) {
 		timeout: 2000,
     }
 
-	return getOptions()
+	return Lib.getOptions()
 	.then(function (res) {
 
 		retValue.timeout = res.timeout;

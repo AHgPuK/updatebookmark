@@ -1,5 +1,9 @@
 const detectBrowser = function () {
+	if (typeof chrome === 'undefined') return;
+
 	const manifest = chrome.runtime.getManifest();
+
+	if (!manifest) return;
 
 	if ('scripts' in manifest.background)
 	{
@@ -9,31 +13,122 @@ const detectBrowser = function () {
 	return 'Chrome';
 }
 
-var isChrome = detectBrowser() == 'Chrome';
+const isChrome = detectBrowser() == 'Chrome';
 
-var Lib = {
-	matchWeight: function (u, v, comparePaths) {
-		if (comparePaths)
+const Lib = {
+
+	calcWeightForBookmarkStandard: function ({
+		uri,
+		bookmark,
+		name,
+		title,
+	 }) {
+		bookmark.weight = Lib.matchWeight(uri, bookmark.url) * 100;
+		bookmark.weightUrl = bookmark.weight;
+
+		if (name)
 		{
-			u = Lib.urlPath(u);
-			v = Lib.urlPath(v);
-		}
-		var max = Math.min(u.length, v.length);
-		for (var i = 0; i < max && u[i] == v[i]; ++i)
-		{
+			bookmark.weightTitle = Lib.longestCommonSubstring(name, title) * 50;
+			bookmark.weight += bookmark.weightTitle;
 		}
 
-		if (i == 0 && !comparePaths)
+		return bookmark;
+	},
+
+	matchWeight: function (u, v) {
+
+		u = Lib.urlPath(u);
+		v = Lib.urlPath(v);
+
+		const max = Math.min(u.length, v.length);
+
+		let index = 0;
+		while (index < max && index < u.length)
 		{
-			i = Lib.longestCommonSubstring(u, v) / 3;
+			++index;
 		}
 
-		return i;
+		// if (i == 0 && !comparePaths)
+		// {
+		// 	i = Lib.longestCommonSubstring(u, v) / 3;
+		// }
+
+		return index;
+	},
+
+	calcWeightForBookmarkStrict: function ({
+		uri,
+		bookmark,
+		name,
+		title,
+	}) {
+
+		bookmark.weight = Lib.matchWeightStrict(uri, bookmark.url) * 100;
+
+		if (bookmark.weight) return bookmark;
+
+		return null;
+	},
+
+	matchWeightStrict: function (u, v) {
+		const uSearch = new URL(u);
+		const vSearch = new URL(v);
+
+		// A path should be equal
+		const [path1, file1] = Lib.getPathAndName(uSearch.pathname);
+		const [path2, file2] = Lib.getPathAndName(vSearch.pathname);
+
+		if (path1 != path2) {
+			return;
+		}
+
+		if (uSearch.searchParams.size == vSearch.searchParams.size)
+		{
+			let weight = 0;
+
+			// Here we compare only file name.
+			weight = Lib.longestCommonSubstring(file1, file2) * 1000;
+
+			if (uSearch.searchParams.size == 0)
+			{
+				return weight;
+			}
+
+			const allKeys = [...new Set([...uSearch.searchParams.keys(), ...vSearch.searchParams.keys()])];
+
+			if (allKeys.length > uSearch.searchParams.size)
+			{
+				// Parameters are different
+				return;
+			}
+
+			// Parameters are the same in both urls
+
+			for (let i = 0; i < allKeys.length; i++) {
+				const key = allKeys[i];
+
+				const uValue = uSearch.searchParams.get(key);
+				const vValue = vSearch.searchParams.get(key);
+
+				if (uValue == vValue)
+				{
+					weight += 100;
+				}
+				else
+				{
+					weight += 50;
+				}
+			}
+
+			return weight;
+		}
+
+		return;
 	},
 
 	urlPath: function (url) {
 
-		var urlObj = Lib.getUrlObject(url);
+		const urlObj = Lib.getUrlObject(url);
 
 		return urlObj.pathname + urlObj.search;
 	},
@@ -124,7 +219,7 @@ var Lib = {
 
 	},
 
-	getBookmarksForURI: function (uri, name) {
+	getBookmarksForURI: function (uri, name, options) {
 
 		var origin = Lib.getUrlObject(uri);
 
@@ -166,34 +261,35 @@ var Lib = {
 
 			return chrome.bookmarks.search({});
 		})
-		.then(function (result) {
+		.then(async function (result) {
 
-			var urls = [];
+			const calcWeightForBookmark = options.isStrictSearch ? Lib.calcWeightForBookmarkStrict : Lib.calcWeightForBookmarkStandard;
 
-			for (var i = 0; i < result.length; i++)
+			const bookmarks = [];
+
+			for (let i = 0; i < result.length; i++)
 			{
-				var bookmark = result[i];
-				var url = bookmark.url;
-				var title = bookmark.title;
-				var urlObject = Lib.getUrlObject(url);
+				const bookmark = result[i];
+
+				if (!bookmark.url) continue;
+
+				const title = bookmark.title;
+				const urlObject = Lib.getUrlObject(bookmark.url);
 
 				if (origin.host == urlObject.host)
 				{
-					bookmark.weight = Lib.matchWeight(uri, url, true) * 100;
-					bookmark.weightUrl = bookmark.weight;
-					// bookmark.weight += Lib.matchWeight(name, title, true);
+					const res = calcWeightForBookmark({
+						uri,
+						bookmark,
+						name,
+						title,
+					});
 
-					if (name)
-					{
-						bookmark.weightTitle = Lib.longestCommonSubstring(name, title) * 50;
-						bookmark.weight += bookmark.weightTitle;
-					}
-
-					urls.push(bookmark);
+					res && bookmarks.push(res);
 				}
 			}
 
-			return urls.sort(function (a, b) {
+			return bookmarks.sort(function (a, b) {
 				return b.weight - a.weight;
 			});
 		})
@@ -285,7 +381,7 @@ var Lib = {
 	},
 
 	waitForResultWithPromise: function (func, time) {
-		var promise = new Promise(function (fulfill, reject) {
+		const promise = new Promise(function (fulfill, reject) {
 			var loopFunc = function () {
 				Promise.resolve()
 					.then(function () {
@@ -314,6 +410,50 @@ var Lib = {
 
 		return promise;
 	},
+
+	getOptions() {
+
+		const defaultValues = {
+			defaultShortcutAction: 'firstButton',
+			timeout: 2000,
+			isContextMenuEnabled: true,
+			isStrictSearch: false,
+		};
+
+		return Promise.resolve()
+		.then(function () {
+
+			if (typeof browser === 'undefined')
+			{
+				return;
+			}
+
+			return browser.storage.local.get(defaultValues);
+
+		})
+		.then(function (res) {
+
+			return res || defaultValues;
+
+		})
+		.catch(function (err) {
+
+			console.error('getOptions:', err.message);
+			return Promise.resolve(defaultValues);
+
+		});
+	},
+
+	getPathAndName: function (url) {
+		const parts = url.split('/');
+		const file = parts.pop();
+
+		return [parts.join('/'), file];
+	},
 }
 
 // export { Lib };
+if (typeof global !== 'undefined')
+{
+	module.exports = Lib;
+}
