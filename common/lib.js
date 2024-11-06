@@ -35,7 +35,7 @@ const Lib = {
 		return bookmark;
 	},
 
-	matchWeight: function (u, v) {
+	matchWeight: function (u, v, comparePaths = true) {
 
 		u = Lib.urlPath(u);
 		v = Lib.urlPath(v);
@@ -43,15 +43,15 @@ const Lib = {
 		const max = Math.min(u.length, v.length);
 
 		let index = 0;
-		while (index < max && index < u.length)
+		while (index < max && u[index] == v[index])
 		{
 			++index;
 		}
 
-		// if (i == 0 && !comparePaths)
-		// {
-		// 	i = Lib.longestCommonSubstring(u, v) / 3;
-		// }
+		if (index == 0 && !comparePaths)
+		{
+			index = Lib.longestCommonSubstring(u, v) / 3;
+		}
 
 		return index;
 	},
