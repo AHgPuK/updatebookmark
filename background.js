@@ -246,7 +246,7 @@ function bookmarkFindAndUpdate(url) {
 			return;
 		}
 
-		currentUrl = currentTab.url;
+		currentUrl = url;
 		currentTitle = currentTab.title;
 
 		return Lib.getOptions();
@@ -298,9 +298,10 @@ function bookmarkFindAndUpdate(url) {
 
 		if (!bookmarksToUpdate) return;
 
-		var bookmark = bookmarksToUpdate[0];
+		const bookmark = bookmarksToUpdate[0];
+		const id = bookmark.id;
 
-		return chrome.bookmarks.update(bookmark.id, {
+		return chrome.bookmarks.update(id, {
 			url: url,
 		})
 

@@ -65,7 +65,16 @@ const Lib = {
 
 		bookmark.weight = Lib.matchWeightStrict(uri, bookmark.url) * 100;
 
-		if (bookmark.weight) return bookmark;
+		if (bookmark.weight) {
+
+			if (name)
+			{
+				bookmark.weightTitle = Lib.longestCommonSubstring(name, title) * 50;
+				bookmark.weight += bookmark.weightTitle;
+			}
+
+			return bookmark;
+		}
 
 		return null;
 	},
@@ -102,7 +111,7 @@ const Lib = {
 				return;
 			}
 
-			// Parameters are the same in both urls
+			// Count of parameters is the same in both urls
 
 			for (let i = 0; i < allKeys.length; i++) {
 				const key = allKeys[i];
@@ -112,11 +121,11 @@ const Lib = {
 
 				if (uValue == vValue)
 				{
-					weight += 100;
+					weight += 250;
 				}
 				else
 				{
-					weight += 50;
+					weight +=  Lib.longestCommonSubstring(uValue, vValue) * 25;
 				}
 			}
 

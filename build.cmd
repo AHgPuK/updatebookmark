@@ -4,9 +4,14 @@ set SOURCE_DIR=.
 set OUTPUT_DIR=build
 set PACKAGE_NAME=UpdateBookmark
 
-for /f %%i in ('hg id -r "tag('re:^v1.') and ancestors(.)" -t') do set VERSION=%%i
+@REM for /f %%i in ('hg id -r "tag('re:^v1.') and ancestors(.)" -t') do set VERSION=%%i
+@REM
+@REM set VERSION=%VERSION:~1%
 
-set VERSION=%VERSION:~1%
+for /f "tokens=2 delims=:," %%a in ('findstr /C:"\"version\"" manifest.json') do set VERSION=%%a
+set VERSION=%VERSION: "=%
+set VERSION=%VERSION:"=%
+
 
 rem for /F "tokens=1,2 delims=/ " %%a in ("%VERSION%") do (
 rem 	set VERSION=%%b
