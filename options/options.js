@@ -9,6 +9,7 @@ function saveOptions(e) {
         timeout: timeout,
         isContextMenuEnabled: document.querySelector('#isContextMenuEnabled').checked,
         isStrictSearch: document.querySelector('#isStrictSearch').checked,
+        isStrictSearchPopup: document.querySelector('#isStrictSearchPopup').checked,
     });
 
     e.preventDefault();
@@ -22,7 +23,8 @@ function restoreOptions() {
         defaultShortcutAction: 'firstButton',
         timeout: 2000,
         isContextMenuEnabled: true,
-        isStrictSearch: false,
+        isStrictSearch: true,
+        isStrictSearchPopup: false,
     };
 
     const storageItem = chrome.storage.local.get(defaultValues);

@@ -253,8 +253,6 @@ function bookmarkFindAndUpdate(url) {
 	})
 		.then(function (options) {
 
-			// Always use strict search on context menu
-			options.isStrictSearch = true;
 			return Lib.getBookmarksForURI(currentUrl, currentTitle, options);
 
 	})

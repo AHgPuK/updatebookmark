@@ -39,7 +39,10 @@ function browserAction() {
 	})
 	.then(function (options) {
 
-		return Lib.getBookmarksForURI(currentUrl, currentTitle, options);
+		return Lib.getBookmarksForURI(currentUrl, currentTitle, {
+			...options,
+			isStrictSearch: options.isStrictSearchPopup,
+		});
 
 	})
 	.then(function (result) {

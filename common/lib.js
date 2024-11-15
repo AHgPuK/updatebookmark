@@ -426,7 +426,8 @@ const Lib = {
 			defaultShortcutAction: 'firstButton',
 			timeout: 2000,
 			isContextMenuEnabled: true,
-			isStrictSearch: false,
+			isStrictSearch: true,
+			isStrictSearchPopup: false,
 		};
 
 		return Promise.resolve()
