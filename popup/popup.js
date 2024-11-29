@@ -207,7 +207,7 @@ async function showBookmarks(list) {
 		var option = document.createElement('option');
 		// option.text = `${item.weight}=${item.weightUrl}+${item.weightTitle}` + ' : ' + item.title;
 		option.text = item.title;
-		option.title = item.url;
+		option.title = `${item.title}\n${item.url}`;
 		option.value = i;
 		// if (i == 0) {
 		// 	option.selected = 'selected';
